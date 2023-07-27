@@ -1,0 +1,38 @@
+syntax = "v1"
+
+info(
+	title: "type title here"
+	desc: "type desc here"
+	author: "type author here"
+	email: "type email here"
+	version: "type version here"
+)
+
+@server(
+	group: favorite
+	prefix: /douyin/publish
+)
+service file-api {
+	@handler publishAction
+	post /action () returns ()
+	
+	@handler listPublishedUserId
+	get /list (UserIdReq) returns ()
+}
+
+type (
+	TokenReq {
+		Token string `json:"token" form:"token"`
+	}
+
+	PublishActionReq {
+		TokenReq
+		Data  byte   `json:"data"`
+		Title string `json:"title"`
+	}
+
+	UserIdReq {
+		TokenReq
+		UserId int64 `json:"user_id" path:"user_id" form:"user_id"`
+	}
+)

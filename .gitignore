@@ -19,3 +19,11 @@
 
 # Go workspace file
 go.work
+
+*/etc/*.yml
+*/etc/*.yaml
+
+go.mod
+go.sum
+
+.idea

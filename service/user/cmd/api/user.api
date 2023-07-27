@@ -1,0 +1,97 @@
+syntax = "v1"
+
+info(
+	title: "type title here"
+	desc: "type desc here"
+	author: "type author here"
+	email: "type email here"
+	version: "type version here"
+)
+
+@server(
+	prefix: /douyin/user
+)
+service user-api {
+	@handler register
+	post /register (LoginReq) returns ()
+	
+	@handler login
+	post /login (LoginReq) returns ()
+}
+
+@server(
+	group: user
+	prefix: /douyin/user
+)
+service user-api {
+	@handler getInfo
+	post / (UserIdReq) returns ()
+}
+
+@server(
+	group: relation
+	prefix: /douyin/relation
+)
+service user-api {
+	@handler relationAction
+	post /action (RelationActionReq) returns ()
+	
+	@handler listFollowedUserByUserId
+	get /follow/list (UserIdReq) returns ()
+	
+	@handler listFollowerByUserId
+	get /follower/list (UserIdReq) returns ()
+	
+	@handler listFriendByUserId
+	get /friend/list (UserIdReq) returns ()
+}
+
+@server(
+	group: message
+	prefix: /douyin/message
+)
+service user-api {
+	@handler chat
+	post /chat (ChatReq) returns ()
+	
+	@handler messageAction
+	get /action (UserIdReq) returns ()
+}
+
+type (
+	TokenReq {
+		Token string `json:"token" form:"token"`
+	}
+
+	UserIdReq {
+		TokenReq
+		UserId int64 `json:"user_id" path:"user_id" form:"user_id"`
+	}
+
+	LoginReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	FavoriteActionReq {
+		VideoId    int64 `json:"video_id"`
+		ActionType int32 `json:"action_type"`
+	}
+
+	RelationActionReq {
+		ToUserId   int64 `json:"to_user_id"`
+		ActionType int32 `json:"action_type"`
+	}
+
+	ChatReq {
+		ToUserId   int64 `json:"to_user_id"`
+		PreMsgTime int64 `json:"pre_msg_time"`
+	}
+
+	MessageAction {
+		TokenReq
+		ToUserId   int64  `json:"to_user_id"`
+		ActionType int32  `json:"action_type"`
+		Content    string `json:"cOntent"`
+	}
+)

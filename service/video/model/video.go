@@ -3,7 +3,7 @@ package model
 import "time"
 
 type VideoInfo struct {
-	ID            int64     `json:"id"`
+	Id            int64     `json:"id"`
 	UserId        int64     `json:"user_id"`        // 外键
 	PlayUrl       string    `json:"play_url"`       // 视频播放地址
 	CoverUrl      string    `json:"cover_url"`      // 视频封面地址

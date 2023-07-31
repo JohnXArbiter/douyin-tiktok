@@ -1,9 +1,9 @@
-package favorite
+package publish
 
 import (
 	"net/http"
 
-	"douyin-tiktok/service/file/cmd/api/internal/logic/favorite"
+	"douyin-tiktok/service/file/cmd/api/internal/logic/publish"
 	"douyin-tiktok/service/file/cmd/api/internal/svc"
 	"douyin-tiktok/service/file/cmd/api/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -17,7 +17,7 @@ func ListPublishedUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := favorite.NewListPublishedUserIdLogic(r.Context(), svcCtx)
+		l := publish.NewListPublishedUserIdLogic(r.Context(), svcCtx)
 		err := l.ListPublishedUserId(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

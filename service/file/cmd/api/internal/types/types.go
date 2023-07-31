@@ -7,7 +7,6 @@ type TokenReq struct {
 
 type PublishActionReq struct {
 	TokenReq
-	Data  byte   `json:"data"`
 	Title string `json:"title"`
 }
 

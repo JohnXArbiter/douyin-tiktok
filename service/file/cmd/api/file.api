@@ -9,12 +9,12 @@ info(
 )
 
 @server(
-	group: favorite
+	group: publish
 	prefix: /douyin/publish
 )
 service file-api {
 	@handler publishAction
-	post /action () returns ()
+	post /action (PublishActionReq) returns ()
 	
 	@handler listPublishedUserId
 	get /list (UserIdReq) returns ()
@@ -27,7 +27,6 @@ type (
 
 	PublishActionReq {
 		TokenReq
-		Data  byte   `json:"data"`
 		Title string `json:"title"`
 	}
 

@@ -2,7 +2,7 @@ package svc
 
 import (
 	"douyin-tiktok/common/utils"
-	"douyin-tiktok/service/video/cmd/api/internal/config"
+	"douyin-tiktok/service/video/cmd/rpc/internal/config"
 	"xorm.io/xorm"
 )
 
@@ -13,6 +13,9 @@ type ServiceContext struct {
 	VideoInfo     *xorm.Session
 	VideoFavorite *xorm.Session
 	VideoComment  *xorm.Session
+
+	//Redis *redis.Client
+
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {

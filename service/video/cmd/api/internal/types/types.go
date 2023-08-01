@@ -33,3 +33,8 @@ type VideoIdReq struct {
 	TokenReq
 	VideoId int64 `json:"videoId" form:"videoId" path:"videoId"`
 }
+
+type PublishActionReq struct {
+	TokenReq
+	Title string `json:"title"`
+}

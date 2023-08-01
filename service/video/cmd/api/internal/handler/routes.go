@@ -7,6 +7,7 @@ import (
 	comment "douyin-tiktok/service/video/cmd/api/internal/handler/comment"
 	favorite "douyin-tiktok/service/video/cmd/api/internal/handler/favorite"
 	feed "douyin-tiktok/service/video/cmd/api/internal/handler/feed"
+	publish "douyin-tiktok/service/video/cmd/api/internal/handler/publish"
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -54,5 +55,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/douyin/comment"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/action",
+				Handler: publish.PublishActionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/list",
+				Handler: publish.ListPublishedUserIdHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/douyin/publish"),
 	)
 }

@@ -3,12 +3,18 @@ package svc
 import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/file/cmd/api/internal/config"
+	"douyin-tiktok/service/user/cmd/rpc/userservice"
+	"douyin-tiktok/service/video/cmd/rpc/videoservice"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/zeromicro/go-zero/zrpc"
 	"xorm.io/xorm"
 )
 
 type ServiceContext struct {
 	Config config.Config
+
+	UserRpc  userservice.UserService
+	VideoRpc videoservice.VideoService
 
 	Xorm      *xorm.Engine
 	FileVideo *xorm.Session
@@ -42,6 +48,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		FileVideo: engine.Table("file_video"),
 		FileUser:  engine.Table("file_user"),
 		FileCover: engine.Table("file_cover"),
+		UserRpc:   userservice.NewUserService(zrpc.MustNewClient(c.UserRpc)),
+		VideoRpc:  videoservice.NewVideoService(zrpc.MustNewClient(c.VideoRpc)),
 		Oss: &Oss{
 			Client:     client,
 			BaseUrl:    "https://" + bucketName + "." + endPoint + "/",

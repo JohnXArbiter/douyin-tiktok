@@ -41,6 +41,18 @@ service video-api {
 	get /list (VideoIdReq) returns ()
 }
 
+@server(
+	group: publish
+	prefix: /douyin/publish
+)
+service video-api {
+	@handler publishAction
+	post /action (PublishActionReq) returns ()
+	
+	@handler listPublishedUserId
+	get /list (UserIdReq) returns ()
+}
+
 type (
 	TokenReq {
 		Token string `json:"token" form:"token"`
@@ -73,5 +85,10 @@ type (
 	VideoIdReq {
 		TokenReq
 		VideoId int64 `json:"videoId" form:"videoId" path:"videoId"`
+	}
+
+	PublishActionReq {
+		TokenReq
+		Title string `json:"title"`
 	}
 )

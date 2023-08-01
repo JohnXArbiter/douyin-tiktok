@@ -1,3 +1,19 @@
 syntax = "proto3";
 
-package template;
+package video;
+
+option go_package = ".";
+
+service VideoService{
+  rpc SaveVideo (SaveVideoReq) returns (CodeResp);
+}
+
+message CodeResp {
+  int64 Code = 1;
+}
+
+message SaveVideoReq {
+  int64 UserId = 1;
+  string Title = 2;
+  string Url = 3;
+}

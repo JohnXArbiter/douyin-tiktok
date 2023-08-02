@@ -5,7 +5,6 @@ import (
 	"douyin-tiktok/service/file/cmd/api/internal/svc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/zeromicro/go-zero/core/logx"
-	"log"
 	"mime/multipart"
 	"path"
 	"strings"
@@ -38,12 +37,12 @@ func (l *OssLogic) Upload(fileHeader *multipart.FileHeader, userId string) (stri
 	// 上传文件。
 	file, err := fileHeader.Open()
 	if err != nil {
-		logx.Debugf("[OSS ERROR] Upload 解析图片错误 " + err.Error())
+		logx.Debugf("[OSS ERROR] Upload 解析图片错误 %v\n", err)
 		return "", "", err
 	}
 	err = bucket.PutObject(objectName, file)
 	if err != nil {
-		logx.Debugf("[OSS ERROR] Upload 上传图片错误 " + err.Error())
+		logx.Debugf("[OSS ERROR] Upload 上传图片错误 %v\n", err)
 		return "", "", err
 	}
 	return l.svcCtx.Oss.BaseUrl + objectName, objectName, nil
@@ -69,14 +68,14 @@ func (l *OssLogic) Delete(objectName string) {
 	// objectName表示删除OSS文件时需要指定包含文件后缀，不包含Bucket名称在内的完整路径，例如exampledir/exampleobject.txt。
 	// 如需删除文件夹，请将objectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
 	if err := bucket.DeleteObject(objectName); err != nil {
-		log.Println("Delete 文件删除失败（OSS）" + err.Error())
+		logx.Errorf("Delete 文件删除失败（OSS）%v\n", err)
 	}
 }
 
 func (l *OssLogic) MultiDelete(objectNames []string) {
 	var bucket, _ = l.svcCtx.Oss.Client.Bucket(l.svcCtx.Oss.BucketName)
 	if _, err := bucket.DeleteObjects(objectNames, oss.DeleteObjectsQuiet(true)); err != nil {
-		log.Println("MultiDelete 文件批量删除失败（OSS）" + err.Error())
+		logx.Errorf("MultiDelete 文件批量删除失败（OSS）%v\n", err)
 	}
 }
 

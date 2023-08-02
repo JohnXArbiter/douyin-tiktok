@@ -2,7 +2,7 @@ package svc
 
 import (
 	"douyin-tiktok/common/utils"
-	"douyin-tiktok/service/user/cmd/api/internal/config"
+	"douyin-tiktok/service/user/cmd/rpc/internal/config"
 	"xorm.io/xorm"
 )
 

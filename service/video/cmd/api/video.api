@@ -41,6 +41,15 @@ service video-api {
 	get /list (VideoIdReq) returns ()
 }
 
+@server(
+	group: publish
+	prefix: /douyin/publish
+)
+service video-api {
+	@handler listPublishedUserId
+	get /list (UserIdReq) returns ()
+}
+
 type (
 	TokenReq {
 		Token string `json:"token" form:"token"`

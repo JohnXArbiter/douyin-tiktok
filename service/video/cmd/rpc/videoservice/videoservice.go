@@ -13,11 +13,12 @@ import (
 )
 
 type (
-	CodeResp     = __.CodeResp
-	SaveVideoReq = __.SaveVideoReq
+	CodeResp      = __.CodeResp
+	SaveVideoReq  = __.SaveVideoReq
+	SaveVideoResp = __.SaveVideoResp
 
 	VideoService interface {
-		SaveVideo(ctx context.Context, in *SaveVideoReq, opts ...grpc.CallOption) (*CodeResp, error)
+		SaveVideo(ctx context.Context, in *SaveVideoReq, opts ...grpc.CallOption) (*SaveVideoResp, error)
 	}
 
 	defaultVideoService struct {
@@ -31,7 +32,7 @@ func NewVideoService(cli zrpc.Client) VideoService {
 	}
 }
 
-func (m *defaultVideoService) SaveVideo(ctx context.Context, in *SaveVideoReq, opts ...grpc.CallOption) (*CodeResp, error) {
+func (m *defaultVideoService) SaveVideo(ctx context.Context, in *SaveVideoReq, opts ...grpc.CallOption) (*SaveVideoResp, error) {
 	client := __.NewVideoServiceClient(m.cli.Conn())
 	return client.SaveVideo(ctx, in, opts...)
 }

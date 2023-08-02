@@ -1,8 +1,7 @@
 package publish
 
 import (
-	"errors"
-	xhttp "github.com/zeromicro/x/http"
+	"douyin-tiktok/common/utils"
 	"net/http"
 
 	"douyin-tiktok/service/video/cmd/api/internal/logic/publish"
@@ -15,16 +14,16 @@ func ListPublishedUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
 		if err := httpx.Parse(r, &req); err != nil {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, errors.New("参数错误！😥"))
+			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
 			return
 		}
 
 		l := publish.NewListPublishedUserIdLogic(r.Context(), svcCtx)
 		resp, err := l.ListPublishedUserId(&req)
 		if err != nil {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, resp)
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, nil)
+			httpx.OkJson(w, resp)
 		}
 	}
 }

@@ -18,11 +18,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/action",
 				Handler: publish.PublishActionHandler(serverCtx),
 			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/list",
-				Handler: publish.ListPublishedUserIdHandler(serverCtx),
-			},
 		},
 		rest.WithPrefix("/douyin/publish"),
 	)

@@ -25,21 +25,19 @@ func NewSaveVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveVid
 	}
 }
 
-func (l *SaveVideoLogic) SaveVideo(in *__.SaveVideoReq) (*__.CodeResp, error) {
-	var resp = &__.CodeResp{Code: -1}
-
-	videoInfo := &model.VideoInfo{
+func (l *SaveVideoLogic) SaveVideo(in *__.SaveVideoReq) (*__.SaveVideoResp, error) {
+	var videoInfo = &model.VideoInfo{
 		UserId:    in.UserId,
 		PlayUrl:   in.Url,
 		Title:     in.Title,
 		PublishAt: time.Now().Local(),
 	}
-	_, err := l.svcCtx.VideoInfo.Insert(videoInfo)
+	id, err := l.svcCtx.VideoInfo.Insert(videoInfo)
 	if err != nil {
 		logx.Errorf("[RPC ERROR] 视频服务：插入新增视频失败 %v\n", err)
-		return resp, err
+		return &__.SaveVideoResp{Code: -1}, err
 	}
 
-	resp.Code = 0
+	resp := &__.SaveVideoResp{VideoId: id}
 	return resp, nil
 }

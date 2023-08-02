@@ -13,13 +13,13 @@ import (
 )
 
 type (
-	CodeResp            = __.CodeResp
-	GetInfoByUserIdResp = __.GetInfoByUserIdResp
-	User                = __.User
-	UserIdReq           = __.UserIdReq
+	CodeResp        = __.CodeResp
+	GetInfoByIdReq  = __.GetInfoByIdReq
+	GetInfoByIdResp = __.GetInfoByIdResp
+	User            = __.User
 
 	UserService interface {
-		GetInfoByUserId(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*GetInfoByUserIdResp, error)
+		GetInfoById(ctx context.Context, in *GetInfoByIdReq, opts ...grpc.CallOption) (*GetInfoByIdResp, error)
 	}
 
 	defaultUserService struct {
@@ -33,7 +33,7 @@ func NewUserService(cli zrpc.Client) UserService {
 	}
 }
 
-func (m *defaultUserService) GetInfoByUserId(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*GetInfoByUserIdResp, error) {
+func (m *defaultUserService) GetInfoById(ctx context.Context, in *GetInfoByIdReq, opts ...grpc.CallOption) (*GetInfoByIdResp, error) {
 	client := __.NewUserServiceClient(m.cli.Conn())
-	return client.GetInfoByUserId(ctx, in, opts...)
+	return client.GetInfoById(ctx, in, opts...)
 }

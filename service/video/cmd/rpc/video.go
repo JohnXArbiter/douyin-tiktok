@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/video.yaml", "the config file")
+var configFile = flag.String("f", "service/video/cmd/rpc/etc/video.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		__.RegisterCmdtyServiceServer(grpcServer, server.NewCmdtyServiceServer(ctx))
+		__.RegisterVideoServiceServer(grpcServer, server.NewVideoServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

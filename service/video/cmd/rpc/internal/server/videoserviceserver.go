@@ -22,7 +22,7 @@ func NewVideoServiceServer(svcCtx *svc.ServiceContext) *VideoServiceServer {
 	}
 }
 
-func (s *VideoServiceServer) SaveVideo(ctx context.Context, in *__.SaveVideoReq) (*__.CodeResp, error) {
+func (s *VideoServiceServer) SaveVideo(ctx context.Context, in *__.SaveVideoReq) (*__.SaveVideoResp, error) {
 	l := logic.NewSaveVideoLogic(ctx, s.svcCtx)
 	return l.SaveVideo(in)
 }

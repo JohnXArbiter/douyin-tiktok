@@ -5,18 +5,19 @@ package user;
 option go_package = ".";
 
 service UserService{
-  rpc GetInfoByUserId (UserIdReq) returns (GetInfoByUserIdResp);
+  rpc GetInfoById (GetInfoByIdReq) returns (GetInfoByIdResp);
 }
 
 message CodeResp {
   int64 Code = 1;
 }
 
-message UserIdReq {
+message GetInfoByIdReq {
   int64 UserId = 1;
+  int64 TargetUserId = 2;
 }
 
-message GetInfoByUserIdResp {
+message GetInfoByIdResp {
   int64 Code = 1;
   User User = 2;
 }

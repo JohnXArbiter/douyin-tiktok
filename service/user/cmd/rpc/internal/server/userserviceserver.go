@@ -22,7 +22,7 @@ func NewUserServiceServer(svcCtx *svc.ServiceContext) *UserServiceServer {
 	}
 }
 
-func (s *UserServiceServer) GetInfoByUserId(ctx context.Context, in *__.UserIdReq) (*__.GetInfoByUserIdResp, error) {
-	l := logic.NewGetInfoByUserIdLogic(ctx, s.svcCtx)
-	return l.GetInfoByUserId(in)
+func (s *UserServiceServer) GetInfoById(ctx context.Context, in *__.GetInfoByIdReq) (*__.GetInfoByIdResp, error) {
+	l := logic.NewGetInfoByIdLogic(ctx, s.svcCtx)
+	return l.GetInfoById(in)
 }

@@ -2,11 +2,13 @@ package publish
 
 import (
 	"context"
+	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/file/cmd/api/internal/logic/oss"
 	"douyin-tiktok/service/file/model"
 	__video "douyin-tiktok/service/video/cmd/rpc/types"
 	"errors"
 	"mime/multipart"
+	"strconv"
 	"time"
 
 	"douyin-tiktok/service/file/cmd/api/internal/svc"
@@ -31,9 +33,9 @@ func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 
 func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *multipart.FileHeader) error {
 	var (
-		userIdStr       = "123" // TODO 认证
-		userId    int64 = 123
-		respChan        = make(chan *__video.SaveVideoResp)
+		userId    = l.ctx.Value("user").(utils.JwtUser).Id
+		userIdStr = strconv.FormatInt(userId, 10)
+		respChan  = make(chan *__video.SaveVideoResp)
 	)
 
 	ossLogic := oss.NewOssLogic(l.ctx, l.svcCtx)

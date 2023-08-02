@@ -3,6 +3,7 @@ package svc
 import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/cmd/api/internal/config"
+	"github.com/yitter/idgenerator-go/idgen"
 	"xorm.io/xorm"
 )
 
@@ -16,6 +17,9 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	options := idgen.NewIdGeneratorOptions(c.Idgen.WorkerId)
+	idgen.SetIdGenerator(options)
+
 	engine := utils.InitXorm("mysql", c.Mysql)
 
 	return &ServiceContext{

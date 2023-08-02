@@ -1,6 +1,7 @@
 package publish
 
 import (
+	"douyin-tiktok/common/middleware"
 	"douyin-tiktok/common/utils"
 	"net/http"
 
@@ -15,6 +16,13 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		var req types.PublishActionReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
+			return
+		}
+
+		// 认证
+		err := middleware.JwtAuthenticate(r, req.Token)
+		if err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 

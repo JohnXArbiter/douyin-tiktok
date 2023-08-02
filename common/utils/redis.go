@@ -6,15 +6,17 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
+var UserServiceRedis *redis.Client // 供每个服务使用的
+
 type Redis struct {
 	Addr     string
 	Password string
 	Db       int
 }
 
-const ()
-
-var UserServiceRedis *redis.Client
+const (
+	UserLogged = "user:logged:"
+)
 
 func UserServiceInit(ctx context.Context, client *redis.Client) {
 	UserServiceRedis = client

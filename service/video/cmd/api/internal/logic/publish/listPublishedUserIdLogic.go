@@ -34,7 +34,10 @@ func (l *ListPublishedUserIdLogic) ListPublishedUserId(req *types.UserIdReq) (ma
 	)
 
 	// 请求用户 rpc 服务更新作品
-	userRpcReq := &__user.UserIdReq{UserId: userId}
+	userRpcReq := &__user.GetInfoByIdReq{
+		UserId:       userId,
+		TargetUserId: req.UserId,
+	}
 	go l.fetchUserInfo(respChan, userRpcReq)
 
 	// 查询 video_info
@@ -59,7 +62,7 @@ func (l *ListPublishedUserIdLogic) ListPublishedUserId(req *types.UserIdReq) (ma
 	return resp, nil
 }
 
-func (l *ListPublishedUserIdLogic) fetchUserInfo(dataChan chan *__user.GetInfoByIdResp, req *__user.UserIdReq) {
+func (l *ListPublishedUserIdLogic) fetchUserInfo(dataChan chan *__user.GetInfoByIdResp, req *__user.GetInfoByIdReq) {
 	var resp, err = l.svcCtx.UserRpc.GetInfoById(l.ctx, req)
 	if err != nil {
 		logx.Errorf("[RPC ERROR] ListPublishedUserId 获取用户信息失败 %v\n", err)

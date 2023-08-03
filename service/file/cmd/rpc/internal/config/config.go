@@ -9,7 +9,10 @@ type Config struct {
 		Dsn string
 	}
 
-	Idgen struct {
-		WorkerId uint16
+	Oss struct {
+		AccessKeyId     string
+		AccessKeySecret string
+		EndPoint        string
+		BucketName      string
 	}
 }

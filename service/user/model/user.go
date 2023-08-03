@@ -15,6 +15,7 @@ type UserInfo struct {
 	Signature       string `json:"signature"`        // 个人简介
 	TotalFavorited  int64  `json:"total_favorited"`  // 获赞数量
 	WorkCount       int64  `json:"work_count"`       // 作品数量
+	IsFollow        bool   `json:"is_follow,omitempty"`
 }
 
 type UserRelation struct {

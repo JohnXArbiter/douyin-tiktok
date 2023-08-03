@@ -1,6 +1,8 @@
 package user
 
 import (
+	"douyin-tiktok/common/middleware"
+	"douyin-tiktok/common/utils"
 	"net/http"
 
 	"douyin-tiktok/service/user/cmd/api/internal/logic/user"
@@ -13,16 +15,21 @@ func GetInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
+			return
+		}
+
+		if err := middleware.JwtAuthenticate(r, req.Token); err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := user.NewGetInfoLogic(r.Context(), svcCtx)
-		err := l.GetInfo(&req)
+		resp, err := l.GetInfo(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {
-			httpx.Ok(w)
+			httpx.OkJson(w, resp)
 		}
 	}
 }

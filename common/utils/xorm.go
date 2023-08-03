@@ -1,26 +1,34 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/zeromicro/go-zero/core/logx"
-	"xorm.io/xorm"
+
+	_ "github.com/lib/pq"
 )
 
-type MysqlConf struct {
-	Dsn string
-}
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "123456"
+	dbname   = "douyin-tiktok"
+)
 
-func InitXorm(dbtype string, mc MysqlConf) *xorm.Engine {
-	engine, err := xorm.NewEngine(dbtype, mc.Dsn)
-	fmt.Println(mc)
-	logx.Infof("[XORM CONNECTING] Init Xorm DSN: %v", mc.Dsn)
+func main() {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic("[XORM ERROR] NewServiceContext 获取mysql连接错误 " + err.Error())
+		panic(err)
 	}
-	err = engine.Ping()
+	defer db.Close()
+
+	err = db.Ping()
 	if err != nil {
-		panic("[XORM ERROR] NewServiceContext ping mysql 失败" + err.Error())
+		panic(err)
 	}
-	return engine
+
+	fmt.Println("Successfully connected!")
 }

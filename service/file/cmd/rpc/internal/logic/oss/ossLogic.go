@@ -2,7 +2,7 @@ package oss
 
 import (
 	"context"
-	"douyin-tiktok/service/file/cmd/api/internal/svc"
+	"douyin-tiktok/service/file/cmd/rpc/internal/svc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/zeromicro/go-zero/core/logx"
 	"mime/multipart"

@@ -9,8 +9,13 @@ type Config struct {
 	rest.RestConf
 
 	UserRpc zrpc.RpcClientConf
+	FileRpc zrpc.RpcClientConf
 
 	Mysql struct {
 		Dsn string
+	}
+
+	Idgen struct {
+		WorkerId uint16
 	}
 }

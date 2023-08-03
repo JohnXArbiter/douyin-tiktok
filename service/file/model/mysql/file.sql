@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `file_video`
     `id`         BIGINT       NOT NULL,
     `user_id`    BIGINT       NOT NULL,
     `video_id`   BIGINT       NOT NULL COMMENT '作品视频id',
-    `objectname` VARCHAR(255) NOT NULL,
+    `object_name` VARCHAR(255) NOT NULL,
     `url`        VARCHAR(255) NOT NULL,
     `upload_at`  DATETIME     NOT NULL,
     PRIMARY KEY (`id`)

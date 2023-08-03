@@ -8,14 +8,17 @@ info(
 	version: "type version here"
 )
 
-@server(
-	group: publish
-	prefix: /douyin/publish
-)
-service file-api {
-	@handler publishAction
-	post /action (PublishActionReq) returns ()
-}
+//@server(
+//	group: publish
+//	prefix: /douyin/publish
+//)
+//service file-api {
+//	@handler publishAction
+//	post /action (PublishActionReq) returns ()
+//
+//	@handler listPublishedUserId
+//	get /list (UserIdReq) returns ()
+//}
 
 type (
 	TokenReq {
@@ -25,5 +28,11 @@ type (
 	PublishActionReq {
 		TokenReq
 		Title string `json:"title"`
+	}
+
+
+	UserIdReq {
+		TokenReq
+		UserId int64 `json:"user_id" path:"user_id" form:"user_id"`
 	}
 )

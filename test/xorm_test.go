@@ -1,10 +1,10 @@
-package utils
+package test
 
 import (
 	"database/sql"
 	"fmt"
-
 	_ "github.com/lib/pq"
+	"testing"
 )
 
 const (
@@ -15,7 +15,8 @@ const (
 	dbname   = "douyin-tiktok"
 )
 
-func main() {
+func TestXormTest(t *testing.T) {
+
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)

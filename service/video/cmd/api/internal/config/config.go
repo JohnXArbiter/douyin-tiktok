@@ -14,8 +14,4 @@ type Config struct {
 	Mysql struct {
 		Dsn string
 	}
-
-	Idgen struct {
-		WorkerId uint16
-	}
 }

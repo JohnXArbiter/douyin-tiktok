@@ -16,11 +16,13 @@ type LoginReq struct {
 }
 
 type FavoriteActionReq struct {
+	TokenReq
 	VideoId    int64 `json:"video_id"`
 	ActionType int32 `json:"action_type"`
 }
 
 type RelationActionReq struct {
+	TokenReq
 	ToUserId   int64 `json:"to_user_id"`
 	ActionType int32 `json:"action_type"`
 }

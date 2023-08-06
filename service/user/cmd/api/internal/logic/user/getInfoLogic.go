@@ -28,7 +28,7 @@ func NewGetInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetInfoLo
 
 func (l *GetInfoLogic) GetInfo(req *types.UserIdReq) (map[string]interface{}, error) {
 	var (
-		userId       = l.ctx.Value("user").(utils.JwtUser).Id
+		//userId       = l.ctx.Value("user").(utils.JwtUser).Id
 		targetUserId = req.UserId
 	)
 
@@ -37,13 +37,13 @@ func (l *GetInfoLogic) GetInfo(req *types.UserIdReq) (map[string]interface{}, er
 		return nil, errors.New("找不到该用户")
 	}
 
-	if userId != targetUserId {
-		isFollow, err := l.svcCtx.UserRelation.Where("`user_id` = ? AND `to_user_id` = ?", userId, targetUserId).Exist()
-		if err != nil {
-			logx.Errorf("[DB ERROR] GetInfo 查询关注记录失败 %v\n", err)
-		}
-		userInfo.IsFollow = isFollow
-	}
+	//if userId != targetUserId {
+	//	isFollow, err := l.svcCtx.UserRelation.Where("`user_id` = ? AND `to_user_id` = ?", userId, targetUserId).Exist()
+	//	if err != nil {
+	//		logx.Errorf("[DB ERROR] GetInfo 查询关注记录失败 %v\n", err)
+	//	}
+	//	userInfo.IsFollow = isFollow
+	//}
 
 	resp := utils.GenOkResp()
 	resp["user"] = userInfo

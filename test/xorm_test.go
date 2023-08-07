@@ -1,35 +1,19 @@
-package test
+package main
 
 import (
-	"database/sql"
+	"douyin-tiktok/common/utils"
+	userModel "douyin-tiktok/service/user/model"
 	"fmt"
-	_ "github.com/lib/pq"
 	"testing"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "123456"
-	dbname   = "douyin-tiktok"
-)
+func TestUserInfo(t *testing.T) {
+	engine := utils.InitXorm("mysql", utils.Postgresql{Dsn: "postgres:123456@localhost:5432/douyin_tiktok"})
+	s := engine.Table("user_info")
 
-func TestXormTest(t *testing.T) {
+	ui := &userModel.UserInfo{Username: "qjdlk", Password: "sadmsdnfjk"}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	insert, err := s.Insert(ui)
+	fmt.Println(insert, err)
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Successfully connected!")
 }

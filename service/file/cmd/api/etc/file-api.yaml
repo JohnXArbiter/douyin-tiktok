@@ -1,0 +1,36 @@
+Name: file-api
+Host: 0.0.0.0
+Port: 30001
+
+Postgresql:
+  dsn: "postgres://postgres:123456@localhost:5432/douyin_tiktok?sslmode=disable"
+
+Redis:
+  Addr: "43.143.241.157:6379"
+  Password: "123456"
+  Db: 1
+
+RabbitMQ:
+  RmqUrl: "amqp://admin:123456@43.143.241.157:5672"
+
+Mongo:
+  Url: "mongodb://43.143.241.157:27017"
+
+
+Oss:
+  EndPoint: oss-cn-beijing.aliyuncs.com
+  AccessKeyId: LTAI5tLbjyWFKmXAMJxxrvcH
+  AccessKeySecret: It3zLuBdphIDetkf61begWrHnxQS4g
+  BucketName: taotao-trading
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - 43.143.241.157:2379
+    Key: user.rpc
+
+VideoRpc:
+  Etcd:
+    Hosts:
+      - 43.143.241.157:2379
+    Key: video.rpc

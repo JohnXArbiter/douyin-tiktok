@@ -34,13 +34,15 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 	var userInfo = &model.UserInfo{Id: in.UserId}
 	err := l.svcCtx.UserInfo.Find(userInfo)
 	if err != nil {
-		logx.Errorf("[DB ERROR] GetInfoById rpc根据id获取用户信息失败 %v\n", err)
+		logx.Errorf("[DB ERROR] GetInfoById rpc根据id查询用户信息失败 %v\n", err)
 		return &__.GetInfoByIdResp{Code: -1}, err
 	}
 
-	// TODO 判断是否是关注的用户
 	if userId != targetUserId {
-
+		isFollow, err = l.svcCtx.UserRelation.Where("`user_id` = ? AND `to_user_id` = ?", userId, targetUserId).Exist()
+		if err != nil {
+			logx.Errorf("[DB ERROR] GetInfoById rpc查询关注记录失败 %v\n", err)
+		}
 	}
 
 	user := &__.User{
@@ -49,7 +51,7 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 		FollowCount:     &userInfo.FollowCount,
 		FollowerCount:   &userInfo.FollowerCount,
 		Avatar:          &userInfo.Avatar,
-		IsFollow:        isFollow, // TODO
+		IsFollow:        isFollow,
 		BackgroundImage: &userInfo.BackgroundImage,
 		Signature:       &userInfo.Signature,
 		TotalFavorited:  &userInfo.TotalFavorited,

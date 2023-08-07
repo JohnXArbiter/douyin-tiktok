@@ -26,9 +26,9 @@ func NewListPublishedUserIdLogic(ctx context.Context, svcCtx *svc.ServiceContext
 	}
 }
 
-func (l *ListPublishedUserIdLogic) ListPublishedUserId(req *types.UserIdReq) (map[string]interface{}, error) {
+func (l *ListPublishedUserIdLogic) ListPublishedUserId(req *types.UserIdReq, loggedUser *utils.JwtUser) (map[string]interface{}, error) {
 	var (
-		userId     = l.ctx.Value("user").(utils.JwtUser).Id
+		userId     = loggedUser.Id
 		respChan   = make(chan *__user.GetInfoByIdResp)
 		videoInfos []model.VideoInfo
 	)

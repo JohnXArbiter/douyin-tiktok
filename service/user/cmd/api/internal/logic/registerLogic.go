@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
 	"errors"
+	"fmt"
 	"github.com/yitter/idgenerator-go/idgen"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
@@ -39,9 +40,9 @@ func (l *RegisterLogic) Register(req *types.LoginReq) (map[string]interface{}, e
 	}
 
 	userInfo.Id = idgen.NextId()
-	userInfo.Username = "user" + strconv.FormatInt(rand.Int63(), 10)
-	_, err = l.svcCtx.UserInfo.Insert(userInfo)
-	if err != nil {
+	userInfo.Name = "user" + strconv.FormatInt(int64(rand.Int31()), 10)
+	if _, err = l.svcCtx.UserInfo.Insert(userInfo); err != nil {
+		fmt.Println(err)
 		return nil, errors.New("注册失败，请重试")
 	}
 
@@ -65,12 +66,12 @@ func (l *RegisterLogic) validate(req *types.LoginReq) (*model.UserInfo, error) {
 		pPattern = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]{12,20}$"
 	)
 	uregex, _ := regexp.Compile(uPattern)
-	if uregex.MatchString(username) {
+	if !uregex.MatchString(username) {
 		return nil, errors.New("账号格式错误，只能包含数字和字母，10-20位")
 	}
 
 	pregex, _ := regexp.Compile(pPattern)
-	if pregex.MatchString(string(password)) {
+	if !pregex.MatchString(string(password)) {
 		return nil, errors.New("密码格式错误，只能包含数字、字母和英文符号，12-20位")
 	}
 

@@ -37,12 +37,13 @@ func (l *OssLogic) Upload(fileHeader *multipart.FileHeader, userId string) (stri
 	// 上传文件。
 	file, err := fileHeader.Open()
 	if err != nil {
-		logx.Debugf("[OSS ERROR] Upload 解析图片错误 %v\n", err)
+		logx.Debugf("[OSS ERROR] Upload 解析文件错误 %v\n", err)
 		return "", "", err
 	}
+
 	err = bucket.PutObject(objectName, file)
 	if err != nil {
-		logx.Debugf("[OSS ERROR] Upload 上传图片错误 %v\n", err)
+		logx.Debugf("[OSS ERROR] Upload 上传文件错误 %v\n", err)
 		return "", "", err
 	}
 	return l.svcCtx.Oss.BaseUrl + objectName, objectName, nil
@@ -68,14 +69,14 @@ func (l *OssLogic) Delete(objectName string) {
 	// objectName表示删除OSS文件时需要指定包含文件后缀，不包含Bucket名称在内的完整路径，例如exampledir/exampleobject.txt。
 	// 如需删除文件夹，请将objectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
 	if err := bucket.DeleteObject(objectName); err != nil {
-		logx.Errorf("Delete 文件删除失败（OSS）%v\n", err)
+		logx.Errorf("[OSS ERROR] Delete 文件删除失败（OSS）%v\n", err)
 	}
 }
 
 func (l *OssLogic) MultiDelete(objectNames []string) {
 	var bucket, _ = l.svcCtx.Oss.Client.Bucket(l.svcCtx.Oss.BucketName)
 	if _, err := bucket.DeleteObjects(objectNames, oss.DeleteObjectsQuiet(true)); err != nil {
-		logx.Errorf("MultiDelete 文件批量删除失败（OSS）%v\n", err)
+		logx.Errorf("[OSS ERROR] MultiDelete 文件批量删除失败（OSS）%v\n", err)
 	}
 }
 
@@ -83,7 +84,7 @@ func genObjectName(filename string, belong string) string {
 	suffix := path.Ext(filename)
 	filename = strings.TrimSuffix(filename, suffix)
 	t := time.Now()
-	fragmt1 := "images/" + t.Format("2006-01") + "/" + t.Format("02")
+	fragmt1 := "file/" + t.Format("2006-01") + "/" + t.Format("02")
 	fragmt2 := "/" + belong + "/" + filename + time.Now().Format("15:04:05") + suffix
 	return fragmt1 + fragmt2
 }

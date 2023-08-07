@@ -5,9 +5,9 @@ import (
 	"douyin-tiktok/common/utils"
 	"net/http"
 
-	"douyin-tiktok/service/file/cmd/api/internal/logic/publish"
-	"douyin-tiktok/service/file/cmd/api/internal/svc"
-	"douyin-tiktok/service/file/cmd/api/internal/types"
+	"douyin-tiktok/service/video/cmd/api/internal/logic/publish"
+	"douyin-tiktok/service/video/cmd/api/internal/svc"
+	"douyin-tiktok/service/video/cmd/api/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -19,8 +19,7 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		// 认证
-		err := middleware.JwtAuthenticate(r, req.Token)
+		loggedUser, err := middleware.JwtAuthenticate(r, req.Token)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
@@ -34,7 +33,7 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := publish.NewPublishActionLogic(r.Context(), svcCtx)
-		err = l.PublishAction(&req, header)
+		err = l.PublishAction(&req, header, loggedUser)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

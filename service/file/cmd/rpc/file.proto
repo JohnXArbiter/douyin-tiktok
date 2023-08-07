@@ -1,3 +1,32 @@
 syntax = "proto3";
 
-package template;
+package file;
+
+option go_package = ".";
+
+service FileService{
+  rpc UploadVideo (UploadVideoReq) returns (UploadVideoResp);
+  rpc RemoveVideo (RemoveVideoReq) returns (CodeResp);
+}
+
+message CodeResp {
+  int64 Code = 1;
+}
+
+message UploadVideoReq {
+  int64 UserId = 1;
+  string videoName = 2;
+  bytes VideoFile = 3;
+  int64 VideoId = 4;
+}
+
+message UploadVideoResp {
+  int64 Code = 1;
+  string PlayUrl = 2;
+  string ObjectName = 3;
+}
+
+message RemoveVideoReq {
+  string ObjectName = 2;
+}
+

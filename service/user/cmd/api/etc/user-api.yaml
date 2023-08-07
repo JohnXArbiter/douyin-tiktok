@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 20001
 
 Mysql:
-  dsn: "root:123456@tcp(43.143.241.157:3306)/taotao_trading_user?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(43.143.241.157:3306)/douyin_user?charset=utf8mb4&parseTime=True&loc=Local"
 
 Redis:
   Addr: "43.143.241.157:6379"

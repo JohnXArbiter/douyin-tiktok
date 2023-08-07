@@ -13,24 +13,18 @@ type UserInfo struct {
 	Signature       string `json:"signature" xorm:"signature"`               // 个人简介
 	TotalFavorited  int64  `json:"total_favorited" xorm:"total_favorited"`   // 获赞数量
 	WorkCount       int64  `json:"work_count" xorm:"work_count"`             // 作品数量
-	IsFollow        bool   `json:"is_follow"`
+	IsFollow        bool   `json:"is_follow" xorm:"-"`
 }
 
-//	type UserRelation struct {
-//		Id            int64 `json:"id"`
-//		UserId1       int64 `json:"user_id_1"`
-//		UserId2       int64 `json:"user_id_2"`
-//		Status        int8  `json:"to_user_id"` // 1：1关注2，2：2关注1，3：互关，0：双方都取关
-//		User1UpdateAt int64 `json:"user_1_update_at"`
-//		User2UpdateAt int64 `json:"user_2_update_at"`
-//	}
-
 type UserRelation struct {
-	UserId int64 `bson:"_id" json:"user_id"`
-	Follow struct {
-		UserId int64 `json:"user_id"`
-		Time   int64 `json:"time"`
-	} `bson:"follow" json:"follow"`
+	UserId  int64          `json:"user_id" bson:"_id"`
+	Follows []RelatedUsers `json:"follows" bson:"follows"`
+	Fans    []RelatedUsers `json:"fans" bson:"fans"`
+}
+
+type RelatedUsers struct {
+	UserId int64 `json:"user_id" bson:"user_id"`
+	Time   int64 `json:"time" bson:"time"`
 }
 
 type UserMessage struct {

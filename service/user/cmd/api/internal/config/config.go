@@ -9,4 +9,5 @@ type Config struct {
 	rest.RestConf
 	Mongo utils.Mongo
 	Mysql utils.Mysql
+	Redis utils.Redis
 }

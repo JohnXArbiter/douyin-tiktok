@@ -16,6 +16,8 @@ type Redis struct {
 
 const (
 	UserLogged = "user:logged:"
+
+	UserFollow = "user:follow:"
 )
 
 func UserServiceInit(ctx context.Context, client *redis.Client) {

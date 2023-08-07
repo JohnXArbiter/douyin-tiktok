@@ -32,9 +32,9 @@ func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 	}
 }
 
-func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *multipart.FileHeader) error {
+func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *multipart.FileHeader, loggedUser *utils.JwtUser) error {
 	var (
-		userId    = l.ctx.Value("user").(utils.JwtUser).Id
+		userId    = loggedUser.Id
 		respChan  = make(chan *__file.UploadVideoResp)
 		videoId   = idgen.NextId()
 		videoName = header.Filename

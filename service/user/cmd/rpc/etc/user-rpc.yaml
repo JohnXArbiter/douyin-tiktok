@@ -6,7 +6,7 @@ Etcd:
   Key: user.rpc
 
 Mysql:
-  dsn: "root:123456@tcp(43.143.241.157:3306)/douyin_video?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(43.143.241.157:3306)/douyin_user?charset=utf8mb4&parseTime=True&loc=Local"
 
 #Redis:
 #  Addr: "43.143.241.157:6379"

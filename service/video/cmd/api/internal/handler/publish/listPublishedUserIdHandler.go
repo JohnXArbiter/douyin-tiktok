@@ -19,13 +19,14 @@ func ListPublishedUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		if err := middleware.JwtAuthenticate(r, req.Token); err != nil {
+		loggedUser, err := middleware.JwtAuthenticate(r, req.Token)
+		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := publish.NewListPublishedUserIdLogic(r.Context(), svcCtx)
-		resp, err := l.ListPublishedUserId(&req)
+		resp, err := l.ListPublishedUserId(&req, loggedUser)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

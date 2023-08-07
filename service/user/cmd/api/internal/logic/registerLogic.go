@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
 	"errors"
+	"fmt"
 	"github.com/yitter/idgenerator-go/idgen"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
@@ -37,11 +38,13 @@ func (l *RegisterLogic) Register(req *types.LoginReq) (map[string]interface{}, e
 	if err != nil {
 		return nil, err
 	}
-
 	userInfo.Id = idgen.NextId()
 	userInfo.Username = "user" + strconv.FormatInt(rand.Int63(), 10)
+	fmt.Println(userInfo)
+
 	_, err = l.svcCtx.UserInfo.Insert(userInfo)
 	if err != nil {
+		fmt.Println(err)
 		return nil, errors.New("注册失败，请重试")
 	}
 

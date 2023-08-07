@@ -22,6 +22,6 @@ Mongo:
 
 Oss:
   EndPoint: oss-cn-beijing.aliyuncs.com
-  AccessKeyId: LTAI5tLbjyWFKmXAMJxxrvcH
-  AccessKeySecret: It3zLuBdphIDetkf61begWrHnxQS4g
+  AccessKeyId: LTAI5tCG4G72UAQ5H7pWbeZB
+  AccessKeySecret: HrrHjMMHIntrJhOlORTObEXzayXIfE
   BucketName: taotao-trading

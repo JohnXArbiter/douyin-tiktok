@@ -6,18 +6,20 @@ import (
 	"time"
 )
 
-type JwtUser struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
-}
+type (
+	JwtUser struct {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+
+	DouyinTiktokClaims struct {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+		jwt.RegisteredClaims
+	}
+)
 
 var secretKey = []byte("dytt")
-
-type DouyinTiktokClaims struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
-	jwt.RegisteredClaims
-}
 
 func GenToken(user *model.UserInfo) (string, error) {
 	var now = time.Now().Local()

@@ -19,7 +19,7 @@ func GetInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		if err := middleware.JwtAuthenticate(r, req.Token); err != nil {
+		if _, err := middleware.JwtAuthenticate(r, req.Token); err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}

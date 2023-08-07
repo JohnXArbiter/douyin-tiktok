@@ -1,8 +1,10 @@
+USE douyin_user;
+
 CREATE TABLE IF NOT EXISTS `user_info`
 (
     `id`               BIGINT                  NOT NULL,
     `username`         VARCHAR(20)             NOT NULL,
-    `password`         VARCHAR(20)             NOT NULL,
+    `password`         VARCHAR(255)             NOT NULL,
     `name`             VARCHAR(20)             NOT NULL COMMENT '用户名称',
     `follow_count`     BIGINT       DEFAULT 0 COMMENT '关注总数',
     `follower_count`   BIGINT       DEFAULT 0 COMMENT '粉丝总数',

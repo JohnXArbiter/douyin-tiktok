@@ -14,7 +14,7 @@ RabbitMQ:
   RmqUrl: "amqp://admin:123456@43.143.241.157:5672"
 
 Mongo:
-  Url: "mongodb://43.143.241.157:27017"
+  Url: "mongodb://admin:admin@43.143.241.157:27017"
 
 
 VideoRpc:

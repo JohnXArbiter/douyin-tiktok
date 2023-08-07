@@ -65,6 +65,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 			PublishAt: time.Now().Local(),
 		}
 		if _, err = tx.Insert(videoInfo); err != nil {
+			logx.Errorf("[DB ERROR] PublishAction 插入视频（作品）失败 %v\n", err)
 			return nil, errors.New("视频保存失败！")
 		}
 
@@ -82,18 +83,16 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 			return nil, errors.New("视频上传失败！")
 		}
 
-		fileVideoId := uploadVideoResp.GetFileVideoId()
-		videoInfo.FileVideoId = fileVideoId
+		objectName := uploadVideoResp.GetObjectName()
+		videoInfo.VideoObjectName = objectName
 		videoInfo.PlayUrl = uploadVideoResp.GetPlayUrl()
 		_, err = tx.Cols("file_video_id", "play_url").Update(videoInfo)
 		if err == nil {
+			logx.Errorf("[DB ERROR] PublishAction 更新视频（作品）失败 %v\n", err)
 			return nil, nil
 		}
 
-		removeVideoReq := &__file.RemoveVideoReq{
-			FileVideoId: fileVideoId,
-			ObjectName:  uploadVideoResp.GetObjectName(),
-		}
+		removeVideoReq := &__file.RemoveVideoReq{ObjectName: objectName}
 		go l.svcCtx.FileRpc.RemoveVideo(l.ctx, removeVideoReq) // 保证原子性，删除 oss 文件
 		return nil, errors.New("视频上传失败！")
 	})
@@ -107,8 +106,7 @@ func (l *PublishActionLogic) saveVideoInfo(dataChan chan *__file.UploadVideoResp
 		dataChan <- data
 	}()
 
-	resp, err := l.svcCtx.FileRpc.UploadVideo(l.ctx, req)
-	if err != nil {
+	if resp, err := l.svcCtx.FileRpc.UploadVideo(l.ctx, req); err != nil {
 		logx.Errorf("[RPC ERROR] PublishAction 入新增视频失败 %v\n", err)
 	} else {
 		data = resp

@@ -1,0 +1,30 @@
+Name: video-api
+Host: 0.0.0.0
+Port: 20001
+
+Mysql:
+  dsn: "root:123456@tcp(43.143.241.157:3306)/taotao_trading_user?charset=utf8mb4&parseTime=True&loc=Local"
+
+Redis:
+  Addr: "43.143.241.157:6379"
+  Password: "123456"
+  Db: 1
+
+RabbitMQ:
+  RmqUrl: "amqp://admin:123456@43.143.241.157:5672"
+
+Mongo:
+  Url: "mongodb://43.143.241.157:27017"
+
+
+VideoRpc:
+  Etcd:
+    Hosts:
+      - 43.143.241.157:2379
+    Key: video.rpc
+
+FileRpc:
+  Etcd:
+    Hosts:
+      - 43.143.241.157:2379
+    Key: file.rpc

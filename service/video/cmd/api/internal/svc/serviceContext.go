@@ -25,7 +25,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	engine := utils.InitXorm("mysql", c.Mysql)
 
-	options := idgen.NewIdGeneratorOptions(c.Idgen.WorkerId)
+	options := idgen.NewIdGeneratorOptions(20)
 	idgen.SetIdGenerator(options)
 
 	return &ServiceContext{

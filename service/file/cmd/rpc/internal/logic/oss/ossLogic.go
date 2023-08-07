@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/service/file/cmd/rpc/internal/svc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/zeromicro/go-zero/core/logx"
+	"io"
 	"mime/multipart"
 	"path"
 	"strings"
@@ -26,8 +27,7 @@ func NewOssLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OssLogic {
 }
 
 func (l *OssLogic) Upload(fileHeader *multipart.FileHeader, userId string) (string, string, error) {
-	// 获取bucket
-	var bucket, err = l.svcCtx.Oss.Client.Bucket(l.svcCtx.Oss.BucketName)
+	var bucket, err = l.svcCtx.Oss.Client.Bucket(l.svcCtx.Oss.BucketName) // 获取bucket
 	if err != nil {
 		return "", "", err
 	}
@@ -41,6 +41,21 @@ func (l *OssLogic) Upload(fileHeader *multipart.FileHeader, userId string) (stri
 		return "", "", err
 	}
 
+	err = bucket.PutObject(objectName, file)
+	if err != nil {
+		logx.Debugf("[OSS ERROR] Upload 上传文件错误 %v\n", err)
+		return "", "", err
+	}
+	return l.svcCtx.Oss.BaseUrl + objectName, objectName, nil
+}
+
+func (l *OssLogic) UploadRaw(file io.Reader, filename, userId string) (string, string, error) {
+	var bucket, err = l.svcCtx.Oss.Client.Bucket(l.svcCtx.Oss.BucketName) // 获取bucket
+	if err != nil {
+		return "", "", err
+	}
+	// 生成url
+	objectName := genObjectName(filename, userId)
 	err = bucket.PutObject(objectName, file)
 	if err != nil {
 		logx.Debugf("[OSS ERROR] Upload 上传文件错误 %v\n", err)

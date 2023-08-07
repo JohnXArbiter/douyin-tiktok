@@ -38,12 +38,12 @@ func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq, logge
 
 	if req.ActionType == 1 {
 		if err := l.follow(userId, toUserId); err != nil {
-			logx.Errorf("[DB ERROR] RelationAction 关注失败 %v\n", err)
+			logx.Errorf("[MONGO ERROR] RelationAction 关注失败 %v\n", err)
 			return errors.New("关注失败")
 		}
 	} else {
 		if err := l.unFollow(userId, toUserId); err != nil {
-			logx.Errorf("[DB ERROR] RelationAction 取消关注失败 %v\n", err)
+			logx.Errorf("[MONGO ERROR] RelationAction 取消关注失败 %v\n", err)
 			return errors.New("取消关注失败")
 		}
 	}

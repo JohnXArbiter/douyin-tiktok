@@ -4,7 +4,6 @@ import (
 	"context"
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/model"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,24 +36,15 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 { //
-		var users, emptyFlag = l.loadIdsFromMongo(userId, isFollow)
-		if err != nil {
-			return nil
-		} else if emptyFlag {
+		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
+		if userRelation == nil && err == nil {
 			return make([]model.UserInfo, 0)
+		} else if err != nil {
+			return nil
 		}
 
-		for _, user := range users {
-			z := redis.Z{
-				Score:  float64(user.Time),
-				Member: strconv.FormatInt(user.UserId, 10),
-			}
-			zs = append(zs, z)
-		}
-		fmt.Println(zs)
-		if err = l.svcCtx.Redis.ZAdd(l.ctx, key, zs...).Err(); err != nil {
-			logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans 关注列表存储redis失败 %v\n", err)
-		}
+		relatedUsers := l.reverse(userRelation, isFollow)
+		zs, _ = l.StoreRelatedUsers2Redis(relatedUsers, key)
 	}
 
 	for _, z := range zs {
@@ -65,7 +55,6 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		logx.Errorf("[DB ERROR] ListFollowedUserByUserId 批量查询userInfo失败 %v\n", err)
 		return nil
 	}
-	fmt.Println("asdasopdjasod", err, userInfos)
 
 	uiMap := make(map[int64]model.UserInfo)
 	for _, info := range userInfos {
@@ -78,13 +67,11 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	return userInfos
 }
 
-func (l *RelationCommonLogic) loadIdsFromMongo(id, isFollow int64) ([]model.RelatedUsers, bool) {
-	var (
-		userRelation model.UserRelation
-		projection   = bson.D{{"followers", 0}}
-	)
+func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserRelation, error) {
+	var userRelation model.UserRelation
 
 	filter := bson.M{"_id": id}
+	projection := bson.D{{"followers", 0}}
 	if isFollow == 1 {
 		projection = bson.D{{"fans", 0}}
 	}
@@ -92,17 +79,15 @@ func (l *RelationCommonLogic) loadIdsFromMongo(id, isFollow int64) ([]model.Rela
 	err := l.svcCtx.UserRelation.FindOne(l.ctx, filter, options.FindOne().SetProjection(projection)).Decode(&userRelation)
 	if err != nil {
 		if strings.Contains(err.Error(), "no documents") {
-			return nil, true
+			return nil, nil
 		}
-		logx.Errorf("[MONGO ERROR] ListFollowedUsersOrFans->loadIdsFromMongo 查询关注文档失败 %v\n", err)
-		return nil, false
+		logx.Errorf("[MONGO ERROR] LoadIdsFromMongo 查询关注文档失败 %v\n", err)
+		return nil, err
 	}
-
-	res, emptyFlag := l.reverse(userRelation, isFollow)
-	return res, emptyFlag
+	return &userRelation, nil
 }
 
-func (l *RelationCommonLogic) reverse(userRelation model.UserRelation, isFollow int64) ([]model.RelatedUsers, bool) {
+func (l *RelationCommonLogic) reverse(userRelation *model.UserRelation, isFollow int64) []model.RelatedUsers {
 	var users, res []model.RelatedUsers
 
 	if isFollow == 1 {
@@ -112,11 +97,24 @@ func (l *RelationCommonLogic) reverse(userRelation model.UserRelation, isFollow 
 	}
 
 	length := len(users) - 1
-	if length <= 0 {
-		return nil, true
-	}
 	for i := length; i >= 0; i-- {
 		res = append(res, users[i])
 	}
-	return res, false
+	return res
+}
+
+func (l *RelationCommonLogic) StoreRelatedUsers2Redis(relatedUsers []model.RelatedUsers, key string) ([]redis.Z, error) {
+	var zs []redis.Z
+	for _, user := range relatedUsers {
+		z := redis.Z{
+			Score:  float64(user.Time),
+			Member: strconv.FormatInt(user.UserId, 10),
+		}
+		zs = append(zs, z)
+	}
+	if err := l.svcCtx.Redis.ZAdd(l.ctx, key, zs...).Err(); err != nil {
+		logx.Errorf("[REDIS ERROR] StoreRelatedUsers2Redis 关注列表存储redis失败 %v\n", err)
+		return zs, err
+	}
+	return zs, nil
 }

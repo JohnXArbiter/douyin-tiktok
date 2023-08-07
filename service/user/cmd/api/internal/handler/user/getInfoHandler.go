@@ -14,18 +14,19 @@ import (
 func GetInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
-		if err := httpx.Parse(r, &req); err != nil {
+		if err := httpx.ParseForm(r, &req); err != nil {
 			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
 			return
 		}
 
-		if _, err := middleware.JwtAuthenticate(r, req.Token); err != nil {
+		loggedUser, err := middleware.JwtAuthenticate(r, req.Token)
+		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := user.NewGetInfoLogic(r.Context(), svcCtx)
-		resp, err := l.GetInfo(&req)
+		resp, err := l.GetInfo(&req, loggedUser)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

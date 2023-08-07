@@ -25,7 +25,7 @@ service user-api {
 )
 service user-api {
 	@handler getInfo
-	post / (UserIdReq) returns ()
+	get / (UserIdReq) returns ()
 }
 
 @server(

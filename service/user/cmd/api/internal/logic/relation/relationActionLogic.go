@@ -99,13 +99,13 @@ func (l *RelationActionLogic) unFollow(userId, toUserId int64) error {
 
 	filter := bson.M{"_id": userId}
 	targetUser := bson.M{"$pull": bson.M{"follows": bson.M{"user_id": toUserId}}}
-	_, err := l.svcCtx.UserRelation.UpdateOne(context.Background(), filter, targetUser)
+	_, err := l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, targetUser)
 	if err != nil {
 		return err
 	}
 
 	filter = bson.M{"_id": toUserId}
 	targetUser = bson.M{"$pull": bson.M{"fans": bson.M{"user_id": userId}}}
-	_, err = l.svcCtx.UserRelation.UpdateOne(context.Background(), filter, targetUser)
+	_, err = l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, targetUser)
 	return err
 }

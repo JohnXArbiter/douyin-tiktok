@@ -36,13 +36,13 @@ service user-api {
 	@handler relationAction
 	post /action (RelationActionReq) returns ()
 	
-	@handler listFollowedUserByUserId
+	@handler listFollowedUsersByUserId
 	get /follow/list (UserIdReq) returns ()
 	
-	@handler listFollowerByUserId
+	@handler listFollowersByUserId
 	get /follower/list (UserIdReq) returns ()
 	
-	@handler listFriendByUserId
+	@handler listFriendsByUserId
 	get /friend/list (UserIdReq) returns ()
 }
 

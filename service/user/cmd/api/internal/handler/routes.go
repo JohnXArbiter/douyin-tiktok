@@ -50,17 +50,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/follow/list",
-				Handler: relation.ListFollowedUserByUserIdHandler(serverCtx),
+				Handler: relation.ListFollowedUsersByUserIdHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
 				Path:    "/follower/list",
-				Handler: relation.ListFollowerByUserIdHandler(serverCtx),
+				Handler: relation.ListFollowersByUserIdHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
 				Path:    "/friend/list",
-				Handler: relation.ListFriendByUserIdHandler(serverCtx),
+				Handler: relation.ListFriendsByUserIdHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/douyin/relation"),

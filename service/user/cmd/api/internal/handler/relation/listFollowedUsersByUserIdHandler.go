@@ -11,7 +11,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func ListFollowedUserByUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ListFollowedUsersByUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
 		if err := httpx.ParseForm(r, &req); err != nil {
@@ -19,14 +19,14 @@ func ListFollowedUserByUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 			return
 		}
 
-		loggedUser, err := middleware.JwtAuthenticate(r, req.Token)
+		_, err := middleware.JwtAuthenticate(r, req.Token)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := relation.NewListFollowedUserByUserIdLogic(r.Context(), svcCtx)
-		resp, err := l.ListFollowedUserByUserId(&req, loggedUser)
+		resp, err := l.ListFollowedUsersByUserId(&req)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

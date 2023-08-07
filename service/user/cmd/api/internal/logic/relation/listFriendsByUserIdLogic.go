@@ -9,22 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ListFriendByUserIdLogic struct {
+type ListFriendsByUserIdLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewListFriendByUserIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListFriendByUserIdLogic {
-	return &ListFriendByUserIdLogic{
+func NewListFriendsByUserIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListFriendsByUserIdLogic {
+	return &ListFriendsByUserIdLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ListFriendByUserIdLogic) ListFriendByUserId(req *types.UserIdReq) error {
+func (l *ListFriendsByUserIdLogic) ListFriendsByUserId(req *types.UserIdReq) (map[string]interface{}, error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return nil, nil
 }

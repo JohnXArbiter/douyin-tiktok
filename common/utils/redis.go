@@ -18,6 +18,7 @@ const (
 	UserLogged = "user:logged:"
 
 	UserFollow = "user:follow:"
+	UserFan    = "user:fan:"
 )
 
 func UserServiceInit(ctx context.Context, client *redis.Client) {

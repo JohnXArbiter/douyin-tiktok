@@ -1,37 +1,45 @@
-USE douyin_user;
+CREATE TABLE "user_info" (
+  "id" int8 NOT NULL,
+  "username" varchar(20) NOT NULL,
+  "password" varchar(255) NOT NULL,
+  "name" varchar(20) NOT NULL,
+  "follow_count" int8,
+  "follower_count" int8,
+  "avatar" varchar(255) NOT NULL,
+  "background_image" varchar(255) NOT NULL,
+  "signature" varchar(200) NOT NULL,
+  "total_favorited" int8 NOT NULL,
+  "work_count" int8 NOT NULL,
+  "favorite_count" int8 NOT NULL,
+  PRIMARY KEY ("id")
+);
+COMMENT ON COLUMN "user_info"."name" IS '用户名称';
+COMMENT ON COLUMN "user_info"."follow_count" IS '关注总数';
+COMMENT ON COLUMN "user_info"."follower_count" IS '粉丝总数';
+COMMENT ON COLUMN "user_info"."avatar" IS '用户头像';
+COMMENT ON COLUMN "user_info"."background_image" IS '用户个人页顶部大图';
+COMMENT ON COLUMN "user_info"."signature" IS '个人简介';
+COMMENT ON COLUMN "user_info"."total_favorited" IS '获赞数量';
+COMMENT ON COLUMN "user_info"."work_count" IS '作品数量';
+COMMENT ON COLUMN "user_info"."favorite_count" IS '点赞数量';
 
-CREATE TABLE IF NOT EXISTS `user_info`
-(
-    `id`               BIGINT                  NOT NULL,
-    `username`         VARCHAR(20)             NOT NULL,
-    `password`         VARCHAR(255)             NOT NULL,
-    `name`             VARCHAR(20)             NOT NULL COMMENT '用户名称',
-    `follow_count`     BIGINT       DEFAULT 0 COMMENT '关注总数',
-    `follower_count`   BIGINT       DEFAULT 0 COMMENT '粉丝总数',
-    `avatar`           VARCHAR(255) DEFAULT '' NOT NULL COMMENT '用户头像',
-    `background_image` VARCHAR(255) DEFAULT '' NOT NULL COMMENT '用户个人页顶部大图',
-    `signature`        VARCHAR(200) DEFAULT '' NOT NULL COMMENT '个人简介',
-    `total_favorited`  BIGINT       DEFAULT 0  NOT NULL COMMENT '获赞数量',
-    `work_count`       BIGINT       DEFAULT 0  NOT NULL COMMENT '作品数量',
-    `favorite_count`   BIGINT       DEFAULT 0  NOT NULL COMMENT '点赞数量',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
+CREATE TABLE "user_message" (
+  "id" int8 NOT NULL,
+  "user_id" int8 NOT NULL,
+  "to_user_id" int8 NOT NULL,
+  "content" varchar(255) NOT NULL,
+  "create_at" timestamp NOT NULL,
+  CONSTRAINT "_copy_2" PRIMARY KEY ("id")
+);
+COMMENT ON COLUMN "user_message"."user_id" IS '发送者';
+COMMENT ON COLUMN "user_message"."to_user_id" IS '对方';
 
-CREATE TABLE IF NOT EXISTS `user_relation`
-(
-    `id`         BIGINT   NOT NULL,
-    `user_id`    BIGINT   NOT NULL,
-    `to_user_id` BIGINT   NOT NULL COMMENT '关注的用户',
-    `create_at`  DATETIME NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
+CREATE TABLE "user_relation" (
+  "id" int8 NOT NULL,
+  "user_id" int8 NOT NULL,
+  "to_user_id" int8 NOT NULL,
+  "create_at" timestamp NOT NULL,
+  CONSTRAINT "_copy_1" PRIMARY KEY ("id")
+);
+COMMENT ON COLUMN "user_relation"."to_user_id" IS '关注的用户';
 
-CREATE TABLE IF NOT EXISTS `user_message`
-(
-    `id`         BIGINT       NOT NULL,
-    `user_id`    BIGINT       NOT NULL COMMENT '发送者',
-    `to_user_id` BIGINT       NOT NULL COMMENT '对方',
-    `content`    VARCHAR(255) NOT NULL,
-    `create_at`  DATETIME     NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;

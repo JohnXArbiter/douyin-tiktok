@@ -31,7 +31,7 @@ type Oss struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	engine := utils.InitXorm("mysql", c.Mysql)
+	engine := utils.InitXorm("postgresql", c.Postgresql)
 
 	endPoint := c.Oss.EndPoint
 	accessKeyId := c.Oss.AccessKeyId

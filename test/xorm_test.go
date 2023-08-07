@@ -8,8 +8,7 @@ import (
 )
 
 func TestUserInfo(t *testing.T) {
-	engine := utils.InitXorm("mysql", utils.Mysql{Dsn: "root:123456@tcp(43.143.241.157:3306)/douyin_user?charset=utf8mb4&parseTime=True&loc=Local"})
-
+	engine := utils.InitXorm("mysql", utils.Postgresql{Dsn: "postgres:123456@localhost:5432/douyin_tiktok"})
 	s := engine.Table("user_info")
 
 	ui := &userModel.UserInfo{Username: "qjdlk", Password: "sadmsdnfjk"}

@@ -1,34 +1,25 @@
 package utils
 
 import (
-	"database/sql"
-	"fmt"
-
 	_ "github.com/lib/pq"
+	"github.com/zeromicro/go-zero/core/logx"
+	"xorm.io/xorm"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "123456"
-	dbname   = "douyin-tiktok"
-)
+type Postgresql struct {
+	Dsn string
+}
 
-func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+func InitXorm(dbtype string, mc Postgresql) *xorm.Engine {
+
+	engine, err := xorm.NewEngine(dbtype, mc.Dsn)
+	logx.Infof("[XORM CONNECTING] Init Xorm DSN: %v", mc.Dsn)
 	if err != nil {
-		panic(err)
+		panic("[XORM ERROR] NewServiceContext 获取pgsql连接错误 " + err.Error())
 	}
-	defer db.Close()
-
-	err = db.Ping()
+	err = engine.Ping()
 	if err != nil {
-		panic(err)
+		panic("[XORM ERROR] NewServiceContext ping pgsql 失败" + err.Error())
 	}
-
-	fmt.Println("Successfully connected!")
+	return engine
 }

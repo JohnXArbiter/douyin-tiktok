@@ -36,7 +36,7 @@ func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq, logge
 		toUserId = req.ToUserId
 	)
 
-	if req.ActionType == 1 {
+	if req.ActionType == 1 { //
 		if err := l.follow(userId, toUserId); err != nil {
 			logx.Errorf("[MONGO ERROR] RelationAction 关注失败 %v\n", err)
 			return errors.New("关注失败")
@@ -57,6 +57,7 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 		now       = time.Now().Unix()
 	)
 
+	// 1.zset如果在内存，并且关注过，那就直接返回
 	member := redis.Z{Score: float64(now), Member: toUserId}
 	if res, err := l.svcCtx.Redis.ZAdd(l.ctx, key, member).Result(); err != nil {
 		logx.Errorf("[REDIS ERROR] RelationAction->follow sth wrong with redis %v\n", err)
@@ -64,6 +65,7 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 		return nil // zset 中已经有了
 	}
 
+	// 2.将要关注的用户保存到 follows 字段中
 	relatedUser := model.RelatedUsers{
 		UserId: toUserId,
 		Time:   now,
@@ -78,6 +80,7 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 		return err
 	}
 
+	// 3.将当前用户的 id 保存到要关注的用户的 fans 字段
 	filter = bson.M{"_id": toUserId}
 	relatedUser.UserId = userId
 	fan := bson.M{"$addToSet": bson.M{
@@ -93,10 +96,12 @@ func (l *RelationActionLogic) unFollow(userId, toUserId int64) error {
 		key       = utils.UserFollow + userIdStr
 	)
 
+	// 1.先删缓存，无所谓成不成功
 	if err := l.svcCtx.Redis.ZRem(l.ctx, key, toUserId).Err(); err != nil {
 		logx.Errorf("[REDIS ERROR] RelationAction->unfollow zrem 失败 %v\n", err)
 	}
 
+	// 2.删掉当前用户的 follows 字段的元素
 	filter := bson.M{"_id": userId}
 	targetUser := bson.M{"$pull": bson.M{"follows": bson.M{"user_id": toUserId}}}
 	_, err := l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, targetUser)
@@ -104,6 +109,7 @@ func (l *RelationActionLogic) unFollow(userId, toUserId int64) error {
 		return err
 	}
 
+	// 3.删掉要取消关注的用户的 fans 字段的元素
 	filter = bson.M{"_id": toUserId}
 	targetUser = bson.M{"$pull": bson.M{"fans": bson.M{"user_id": userId}}}
 	_, err = l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, targetUser)

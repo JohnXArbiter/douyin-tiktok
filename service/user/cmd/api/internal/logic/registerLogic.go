@@ -5,13 +5,13 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
 	"errors"
-	"fmt"
 	"github.com/yitter/idgenerator-go/idgen"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/cmd/api/internal/types"
@@ -42,13 +42,18 @@ func (l *RegisterLogic) Register(req *types.LoginReq) (map[string]interface{}, e
 	userInfo.Id = idgen.NextId()
 	userInfo.Name = "user" + strconv.FormatInt(int64(rand.Int31()), 10)
 	if _, err = l.svcCtx.UserInfo.Insert(userInfo); err != nil {
-		fmt.Println(err)
 		return nil, errors.New("注册失败，请重试")
 	}
 
 	token, err := utils.GenToken(userInfo)
 	if err != nil {
 		return nil, errors.New("出错啦，请重试！")
+	}
+
+	key := utils.UserLogged + strconv.FormatInt(userInfo.Id, 10)
+	if err = l.svcCtx.Redis.Set(l.ctx, key, token, 7*24*time.Hour).Err(); err != nil {
+		logx.Errorf("[REDIS ERROR] Register 保存用户token失败，userid：%v %v\n", userInfo.Id, err)
+		l.svcCtx.Redis.Set(l.ctx, key, token, 7*24*time.Hour) // 重试
 	}
 
 	resp := utils.GenOkResp()

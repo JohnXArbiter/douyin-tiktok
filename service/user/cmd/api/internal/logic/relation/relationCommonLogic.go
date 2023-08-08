@@ -37,7 +37,7 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 { //
 		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
-		if userRelation == nil && err == nil {
+		if (userRelation == nil && err == nil) || userRelation.Fans == nil || userRelation.Follows == nil {
 			return make([]model.UserInfo, 0)
 		} else if err != nil {
 			return nil
@@ -51,7 +51,7 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
 		ids = append(ids, id)
 	}
-	if err = l.svcCtx.UserInfo.In("`id`", ids).Find(&userInfos); err != nil {
+	if err = l.svcCtx.UserInfo.In("`id`", ids).Omit("`username`", "`password`").Find(&userInfos); err != nil {
 		logx.Errorf("[DB ERROR] ListFollowedUserByUserId 批量查询userInfo失败 %v\n", err)
 		return nil
 	}
@@ -67,6 +67,7 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	return userInfos
 }
 
+// LoadIdsFromMongo 从 mongo 中取 follows 或 fans 字段
 func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserRelation, error) {
 	var userRelation model.UserRelation
 
@@ -87,6 +88,7 @@ func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserR
 	return &userRelation, nil
 }
 
+// 倒序排
 func (l *RelationCommonLogic) reverse(userRelation *model.UserRelation, isFollow int64) []model.RelatedUsers {
 	var users, res []model.RelatedUsers
 

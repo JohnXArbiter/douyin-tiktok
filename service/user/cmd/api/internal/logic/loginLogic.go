@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 	"strings"
+	"time"
 
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/cmd/api/internal/types"
@@ -49,6 +51,12 @@ func (l *LoginLogic) Login(req *types.LoginReq) (map[string]interface{}, error) 
 	token, err := utils.GenToken(userInfo)
 	if err != nil {
 		return nil, errors.New("出错啦，请重试！")
+	}
+
+	key := utils.UserLogged + strconv.FormatInt(userInfo.Id, 10)
+	if err = l.svcCtx.Redis.Set(l.ctx, key, token, 7*24*time.Hour).Err(); err != nil {
+		logx.Errorf("[REDIS ERROR] Login 保存用户token失败，userid：%v %v\n", userInfo.Id, err)
+		l.svcCtx.Redis.Set(l.ctx, key, token, 7*24*time.Hour) // 重试
 	}
 
 	resp := utils.GenOkResp()

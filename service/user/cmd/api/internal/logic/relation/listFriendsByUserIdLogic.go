@@ -3,6 +3,7 @@ package relation
 import (
 	"context"
 	"douyin-tiktok/common/utils"
+	"douyin-tiktok/service/user/model"
 	"errors"
 	"github.com/redis/go-redis/v9"
 	"strconv"
@@ -36,44 +37,62 @@ func (l *ListFriendsByUserIdLogic) ListFriendsByUserId(req *types.UserIdReq) (ma
 		resp      = utils.GenOkResp()
 	)
 
-	if exists := l.svcCtx.Redis.Exists(l.ctx, followKey).Val(); exists == 0 {
+	// 1.找关注列表
+	if exist := l.svcCtx.Redis.Exists(l.ctx, followKey).Val(); exist == 0 {
 		relationCommonLogic := NewRelationCommonLogic(l.ctx, l.svcCtx)
 		userRelation, err := relationCommonLogic.LoadIdsFromMongo(userId, 1)
 		if userRelation == nil && err == nil {
 			resp["user_list"] = make([]struct{}, 0)
-			return nil, errors.New("出错啦")
+			return resp, nil
 		}
-
 		_, err = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Follows, followKey)
 		if err != nil {
 			return nil, errors.New("出错啦")
 		}
 	}
 
-	if exists := l.svcCtx.Redis.Exists(l.ctx, fanKey).Val(); exists == 0 {
+	// 2.找粉丝列表
+	if exist := l.svcCtx.Redis.Exists(l.ctx, fanKey).Val(); exist == 0 {
 		relationCommonLogic := NewRelationCommonLogic(l.ctx, l.svcCtx)
-		userRelation, err := relationCommonLogic.LoadIdsFromMongo(userId, 1)
+		userRelation, err := relationCommonLogic.LoadIdsFromMongo(userId, 2)
 		if userRelation == nil && err == nil {
 			resp["user_list"] = make([]struct{}, 0)
-			return nil, errors.New("出错啦")
+			return resp, nil
 		}
-
-		_, err = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Follows, fanKey)
+		_, err = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Fans, fanKey)
 		if err != nil {
 			return nil, errors.New("出错啦")
 		}
 	}
 
+	// 3.求交集
 	store := &redis.ZStore{Keys: []string{followKey, fanKey}, Weights: []float64{1, 1}}
-	_, err := l.svcCtx.Redis.ZInter(l.ctx, store).Result()
+	idStrs, err := l.svcCtx.Redis.ZInter(l.ctx, store).Result()
 	if err != nil {
-		logx.Errorf("[REDIS ERROR] ListFriendsByUserId 获取用户:%v，关注粉丝交集失败 %v\n", err)
+		logx.Errorf("[REDIS ERROR] ListFriendsByUserId 获取用户:%v，关注粉丝交集失败 %v\n", userId, err)
 		return nil, errors.New("出错啦")
 	}
-	// todo
-	//for i, s := range result {
-	//
-	//}
 
-	return nil, nil
+	// 4.取用户信息
+	ids, length := make([]int64, 0), len(idStrs)
+	for i := length - 1; i >= 0; i-- {
+		id, _ := strconv.ParseInt(idStrs[i], 10, 64)
+		ids = append(ids, id)
+	}
+
+	userInfos, uisMap := make([]model.UserInfo, 0), map[int64]model.UserInfo{}
+	err = l.svcCtx.UserInfo.In("`id`", ids).Omit("`username`", "`password`").Find(&userInfos)
+	if err != nil {
+		logx.Errorf("[DB ERROR] ListFriendsByUserId 批量查询userInfo失败 %v\n", err)
+		return nil, errors.New("出错啦")
+	}
+
+	for _, ui := range userInfos {
+		uisMap[ui.Id] = ui
+	}
+	for i, id := range ids {
+		userInfos[i] = uisMap[id]
+	}
+	resp["user_list"] = userInfos
+	return resp, nil
 }

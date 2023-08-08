@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
 	"errors"
+	"fmt"
 	"github.com/yitter/idgenerator-go/idgen"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
@@ -67,9 +68,11 @@ func (l *RegisterLogic) validate(req *types.LoginReq) (*model.UserInfo, error) {
 	var (
 		username = strings.TrimSpace(req.Username)
 		password = []byte(strings.TrimSpace(req.Password))
-		uPattern = "^[a-zA-Z0-9]{10,20}$"
-		pPattern = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]{12,20}$"
+		uPattern = "^[a-zA-Z0-9]{6,20}$"
+		pPattern = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]{8,20}$"
 	)
+
+	fmt.Println(username, password)
 	uregex, _ := regexp.Compile(uPattern)
 	if !uregex.MatchString(username) {
 		return nil, errors.New("账号格式错误，只能包含数字和字母，10-20位")

@@ -13,7 +13,7 @@ import (
 func registerHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.LoginReq
-		if err := httpx.Parse(r, &req); err != nil {
+		if err := httpx.ParseForm(r, &req); err != nil {
 			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
 			return
 		}

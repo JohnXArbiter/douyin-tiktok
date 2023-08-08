@@ -47,7 +47,7 @@ func ParseToken(token string) (*DouyinTiktokClaims, error) {
 			return secretKey, nil
 		})
 
-	if !tokenClaim.Valid || err != nil {
+	if err != nil || !tokenClaim.Valid {
 		return nil, err
 	}
 	return claims, nil

@@ -15,7 +15,7 @@ type Config struct {
 		Dsn string
 	}
 
-	Idgen struct {
-		WorkerId uint16
-	}
+	//Idgen struct {
+	//	WorkerId uint16
+	//}
 }

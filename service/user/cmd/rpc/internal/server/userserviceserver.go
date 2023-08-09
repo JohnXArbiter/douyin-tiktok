@@ -26,3 +26,8 @@ func (s *UserServiceServer) GetInfoById(ctx context.Context, in *__.GetInfoByIdR
 	l := logic.NewGetInfoByIdLogic(ctx, s.svcCtx)
 	return l.GetInfoById(in)
 }
+
+func (s *UserServiceServer) GetInfoList(ctx context.Context, in *__.GetInfoListReq) (*__.GetInfoListResp, error) {
+	l := logic.NewGetInfoListLogic(ctx, s.svcCtx)
+	return l.GetInfoList(in)
+}

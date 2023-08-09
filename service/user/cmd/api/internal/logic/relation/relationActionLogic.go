@@ -32,16 +32,17 @@ func NewRelationActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 
 func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq, loggedUser *utils.JwtUser) error {
 	var (
-		userId   = loggedUser.Id
-		toUserId = req.ToUserId
+		userId     = loggedUser.Id
+		toUserId   = req.ToUserId
+		actionType = req.ActionType
 	)
 
-	if req.ActionType == 1 { //
+	if actionType == 1 { //
 		if err := l.follow(userId, toUserId); err != nil {
 			logx.Errorf("[MONGO ERROR] RelationAction 关注失败 %v\n", err)
 			return errors.New("关注失败")
 		}
-	} else {
+	} else if actionType == 2 {
 		if err := l.unFollow(userId, toUserId); err != nil {
 			logx.Errorf("[MONGO ERROR] RelationAction 取消关注失败 %v\n", err)
 			return errors.New("取消关注失败")

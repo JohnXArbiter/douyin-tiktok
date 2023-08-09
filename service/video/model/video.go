@@ -21,3 +21,13 @@ type VideoFavorite struct {
 	VideoId  int64     `json:"video_id"` // 喜欢的视频
 	CreateAt time.Time `json:"create_at"`
 }
+
+type VideoComment struct {
+	Id         int64       `json:"id"`
+	Content    string      `json:"content"`
+	CreateDate string      `json:"create_date" xorm:"-"`
+	CreateAt   int64       `json:"-"`
+	UserId     int64       `json:"user_id"`
+	VideoId    int64       `json:"video_id"`
+	User       interface{} `json:"user,omitempty"`
+}

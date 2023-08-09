@@ -55,40 +55,40 @@ service video-api {
 
 type (
 	TokenReq {
-		Token string `json:"token" form:"token"`
+		Token string `form:"token"`
 	}
 
 	FeedReq {
-		LatestTime int64 `json:"latest_time"`
+		LatestTime int64 `form:"latest_time"`
 		TokenReq
 	}
 
 	UserIdReq {
 		TokenReq
-		UserId int64 `json:"user_id" path:"user_id" form:"user_id"`
+		UserId int64 `form:"user_id,optional"`
 	}
 
 	FavoriteActionReq {
 		TokenReq
-		VideoId    int64 `json:"video_id"`
-		ActionType int32 `json:"action_type"`
+		VideoId    int64 `form:"video_id"`
+		ActionType int32 `form:"action_type"`
 	}
 
 	CommentActionReq {
 		TokenReq
-		VideoId     int64  `json:"video_id"`
-		ActionType  int32  `json:"action_type"`
-		CommentText string `json:"comment_text"`
-		CommentId   int64  `json:"comment_id"`
+		VideoId     int64  `form:"video_id"`
+		ActionType  int32  `form:"action_type"`
+		CommentText string `form:"comment_text,optional"`
+		CommentId   int64  `form:"comment_id,optional"`
 	}
 
 	VideoIdReq {
 		TokenReq
-		VideoId int64 `json:"videoId" form:"videoId" path:"videoId"`
+		VideoId int64 `form:"videoId"`
 	}
 
 	PublishActionReq {
 		TokenReq
-		Title string `json:"title"`
+		Title string `form:"title"`
 	}
 )

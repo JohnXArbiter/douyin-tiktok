@@ -12,9 +12,12 @@ func TestUserInfo(t *testing.T) {
 
 	s := engine.Table("user_info")
 
-	ui := &userModel.UserInfo{Username: "qjdlk", Password: "sadmsdnfjk"}
+	//ui := &userModel.UserInfo{Username: "qjdlk", Password: "sadmsdnfjk"}
+	//
+	//insert, err := s.Insert(ui)
+	//fmt.Println(insert, err)
 
-	insert, err := s.Insert(ui)
-	fmt.Println(insert, err)
-
+	ui := &userModel.UserInfo{Id: 3}
+	get, err := s.Cols("id, name, avatar").Get(ui)
+	fmt.Printf("%#v %v %v\n", ui, err, get)
 }

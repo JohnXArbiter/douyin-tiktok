@@ -81,7 +81,7 @@ func (l *ListFriendsByUserIdLogic) ListFriendsByUserId(req *types.UserIdReq) (ma
 	}
 
 	userInfos, uisMap := make([]model.UserInfo, 0), map[int64]model.UserInfo{}
-	err = l.svcCtx.UserInfo.In("`id`", ids).Omit("`username`", "`password`").Find(&userInfos)
+	err = l.svcCtx.UserInfo.In("`id`", ids).Cols("`id`, `name`, `avatar`").Find(&userInfos)
 	if err != nil {
 		logx.Errorf("[DB ERROR] ListFriendsByUserId 批量查询userInfo失败 %v\n", err)
 		return nil, errors.New("出错啦")

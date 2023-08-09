@@ -16,10 +16,13 @@ type (
 	CodeResp        = __.CodeResp
 	GetInfoByIdReq  = __.GetInfoByIdReq
 	GetInfoByIdResp = __.GetInfoByIdResp
+	GetInfoListReq  = __.GetInfoListReq
+	GetInfoListResp = __.GetInfoListResp
 	User            = __.User
 
 	UserService interface {
 		GetInfoById(ctx context.Context, in *GetInfoByIdReq, opts ...grpc.CallOption) (*GetInfoByIdResp, error)
+		GetInfoList(ctx context.Context, in *GetInfoListReq, opts ...grpc.CallOption) (*GetInfoListResp, error)
 	}
 
 	defaultUserService struct {
@@ -36,4 +39,9 @@ func NewUserService(cli zrpc.Client) UserService {
 func (m *defaultUserService) GetInfoById(ctx context.Context, in *GetInfoByIdReq, opts ...grpc.CallOption) (*GetInfoByIdResp, error) {
 	client := __.NewUserServiceClient(m.cli.Conn())
 	return client.GetInfoById(ctx, in, opts...)
+}
+
+func (m *defaultUserService) GetInfoList(ctx context.Context, in *GetInfoListReq, opts ...grpc.CallOption) (*GetInfoListResp, error) {
+	client := __.NewUserServiceClient(m.cli.Conn())
+	return client.GetInfoList(ctx, in, opts...)
 }

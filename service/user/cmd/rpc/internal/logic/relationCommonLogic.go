@@ -1,8 +1,8 @@
-package relation
+package logic
 
 import (
 	"context"
-	"douyin-tiktok/service/user/cmd/api/internal/svc"
+	"douyin-tiktok/service/user/cmd/rpc/internal/svc"
 	"douyin-tiktok/service/user/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"

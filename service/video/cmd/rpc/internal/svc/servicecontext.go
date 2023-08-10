@@ -14,7 +14,7 @@ type ServiceContext struct {
 	VideoFavorite *xorm.Session
 	VideoComment  *xorm.Session
 
-	//Redis *redis.Client
+	//RedisConf *redis.Client
 
 }
 
@@ -27,6 +27,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		VideoInfo:     engine.Table("video_info"),
 		VideoFavorite: engine.Table("video_favorite"),
 		VideoComment:  engine.Table("video_comment"),
-		//Redis:        utils.InitRedis(c.Redis),
+		//RedisConf:        utils.InitRedis(c.RedisConf),
 	}
 }

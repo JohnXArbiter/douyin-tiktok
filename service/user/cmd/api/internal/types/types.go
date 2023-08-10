@@ -2,39 +2,40 @@
 package types
 
 type TokenReq struct {
-	Token string `json:"token" form:"token"`
+	Token string `form:"token"`
 }
 
 type UserIdReq struct {
 	TokenReq
-	UserId int64 `json:"user_id" path:"user_id" form:"user_id"`
+	UserId int64 `form:"user_id"`
 }
 
 type LoginReq struct {
-	Username string `json:"username" form:"username"`
-	Password string `json:"password" form:"password"`
+	Username string `form:"username"`
+	Password string `form:"password"`
 }
 
 type FavoriteActionReq struct {
 	TokenReq
-	VideoId    int64 `json:"video_id"`
-	ActionType int32 `json:"action_type"`
+	VideoId    int64 `form:"video_id"`
+	ActionType int32 `form:"action_type"`
 }
 
 type RelationActionReq struct {
 	TokenReq
-	ToUserId   int64 `json:"to_user_id"`
-	ActionType int32 `json:"action_type"`
+	ToUserId   int64 `form:"to_user_id"`
+	ActionType int32 `form:"action_type"`
 }
 
 type ChatReq struct {
-	ToUserId   int64 `json:"to_user_id"`
-	PreMsgTime int64 `json:"pre_msg_time"`
+	TokenReq
+	ToUserId   int64 `form:"to_user_id"`
+	PreMsgTime int64 `form:"pre_msg_time"`
 }
 
 type MessageAction struct {
 	TokenReq
-	ToUserId   int64  `json:"to_user_id"`
-	ActionType int32  `json:"action_type"`
-	Content    string `json:"cOntent"`
+	ToUserId   int64  `form:"to_user_id"`
+	ActionType int32  `form:"action_type"`
+	Content    string `form:"cOntent"`
 }

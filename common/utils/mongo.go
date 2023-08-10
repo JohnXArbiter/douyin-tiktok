@@ -7,14 +7,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Mongo struct {
+type MongoConf struct {
 	Url string
 }
 
-func InitMongo(mc Mongo) *mongo.Client {
+func InitMongo(mc MongoConf) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(mc.Url) // 设置客户端连接配置
 	client, err := mongo.NewClient(clientOptions)      // 创建客户端
-	logx.Infof("[MONGO CONNECTING] Init Mongo URL: %v", mc.Url)
+	logx.Infof("[MONGO CONNECTING] Init MongoConf URL: %v", mc.Url)
 	if err != nil {
 		panic("[MONGO ERROR] NewServiceContext mongodb 连接失败 " + err.Error())
 	}

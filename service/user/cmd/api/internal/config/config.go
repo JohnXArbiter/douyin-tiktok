@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	rest.RestConf
-	Mongo utils.Mongo
-	Mysql utils.Mysql
-	Redis utils.Redis
+	Mongo utils.MongoConf
+	Mysql utils.MysqlConf
+	Redis utils.RedisConf
 }

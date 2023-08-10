@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
-	Mysql utils.Mysql
-	Redis utils.Redis
-	Mongo utils.Mongo
+	Mysql  utils.MysqlConf
+	Redis1 utils.RedisConf
+	Mongo  utils.MongoConf
 }

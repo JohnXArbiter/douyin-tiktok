@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `user_info`
 (
     `id`               BIGINT                  NOT NULL,
     `username`         VARCHAR(20)             NOT NULL,
-    `password`         VARCHAR(255)             NOT NULL,
+    `password`         VARCHAR(255)            NOT NULL,
     `name`             VARCHAR(20)             NOT NULL COMMENT '用户名称',
     `follow_count`     BIGINT       DEFAULT 0 COMMENT '关注总数',
     `follower_count`   BIGINT       DEFAULT 0 COMMENT '粉丝总数',
@@ -17,21 +17,13 @@ CREATE TABLE IF NOT EXISTS `user_info`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `user_relation`
-(
-    `id`         BIGINT   NOT NULL,
-    `user_id`    BIGINT   NOT NULL,
-    `to_user_id` BIGINT   NOT NULL COMMENT '关注的用户',
-    `create_at`  DATETIME NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `user_message`
 (
-    `id`         BIGINT       NOT NULL,
-    `user_id`    BIGINT       NOT NULL COMMENT '发送者',
-    `to_user_id` BIGINT       NOT NULL COMMENT '对方',
-    `content`    VARCHAR(255) NOT NULL,
-    `create_at`  DATETIME     NOT NULL,
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+    `user_id`     BIGINT       NOT NULL COMMENT '发送者',
+    `to_user_id`  BIGINT       NOT NULL COMMENT '对方',
+    `content`     VARCHAR(100) NOT NULL,
+    `create_time` DATETIME     NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

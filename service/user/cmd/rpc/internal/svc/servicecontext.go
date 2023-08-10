@@ -33,6 +33,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserMessage:  engine.Table("user_message"),
 		Mongo:        mc,
 		UserRelation: mc.Database("douyin_user").Collection("user_relation"),
-		Redis:        utils.InitRedis(c.Redis),
+		Redis:        utils.InitRedis(c.Redis1),
 	}
 }

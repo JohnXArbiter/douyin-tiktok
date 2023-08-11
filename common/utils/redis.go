@@ -8,7 +8,7 @@ import (
 
 var UserServiceRedis *redis.Client // 供每个服务使用的
 
-type Redis struct {
+type RedisConf struct {
 	Addr     string
 	Password string
 	Db       int
@@ -29,7 +29,7 @@ func UserServiceInit(ctx context.Context, client *redis.Client) {
 	}
 }
 
-func InitRedis(rc Redis) *redis.Client {
+func InitRedis(rc RedisConf) *redis.Client {
 	var ctx = context.Background()
 	client := redis.NewClient(&redis.Options{
 		Addr:     rc.Addr,

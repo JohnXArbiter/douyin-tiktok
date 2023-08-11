@@ -6,11 +6,11 @@ import (
 	"xorm.io/xorm"
 )
 
-type Mysql struct {
+type MysqlConf struct {
 	Dsn string
 }
 
-func InitXorm(dbtype string, mc Mysql) *xorm.Engine {
+func InitXorm(dbtype string, mc MysqlConf) *xorm.Engine {
 	engine, err := xorm.NewEngine(dbtype, mc.Dsn)
 	logx.Infof("[XORM CONNECTING] Init Xorm DSN: %v", mc.Dsn)
 	if err != nil {

@@ -34,11 +34,11 @@ func InitRabbitMQ(rc RabbitMQConf) (*amqp.Connection, *amqp.Channel) {
 	conn, err := amqp.Dial(rc.RmqUrl)
 	logx.Infof("[RABBITMQ CONNECTING] InitRabbitMQ RmqUrl: %v\n", rc.RmqUrl)
 	if err != nil {
-		panic("[RABBITMQ ERROR] NewServiceContext 连接不到rabbitmq" + err.Error())
+		panic("[RABBITMQ ERROR] InitRabbitMQ 连接不到rabbitmq" + err.Error())
 	}
 	channel, err := conn.Channel()
 	if err != nil {
-		panic("[RABBITMQ ERROR] NewServiceContext 获取rabbitmq通道失败")
+		panic("[RABBITMQ ERROR] InitRabbitMQ 获取rabbitmq通道失败 " + err.Error())
 	}
 	return conn, channel
 }
@@ -69,50 +69,27 @@ func (r *RabbitMQ) PublishTopic(message string) error {
 }
 
 const (
-	// 商品收藏相关
-	CmdtyCollectExchange     = "taotao_cmdty_collect_exchange"
-	CmdtyCollectDeadExchange = "taotao_cmdty_collect_exchange_dead"
-	CmdtyCollectQueue        = "taotao_cmdty_collect"
-	CmdtyCollectDeadQueue    = "taotao_cmdty_collect_dead"
-
-	// 浏览数相关（商品和文章）
-	ViewExchange     = "taotao_view_exchange"
-	ViewDeadExchange = "taotao_view_exchange_dead"
-	ViewQueue        = "taotao_view"
-	ViewDeadQueue    = "taotao_view_dead"
-
-	// 用户收藏相关
-	UserCollectExchange     = "taotao_user_collect_exchange"
-	UserCollectDeadExchange = "taotao_user_collect_exchange_dead"
-	UserCollectQueue        = "taotao_user_collect"
-	UserCollectDeadQueue    = "taotao_user_collect_dead"
-
-	// 点赞相关（商品和文章）
-	AtclCollectExchange     = "taotao_atcl_collect_exchange"
-	AtclCollectDeadExchange = "taotao_atcl_collect_exchange_dead"
-	AtclCollectQueue        = "taotao_atcl_collect"
-	AtclCollectDeadQueue    = "taotao_atcl_collect_dead"
-	AtclLikeExchange        = "taotao_atcl_like_exchange"
-	AtclLikeDeadExchange    = "taotao_atcl_like_exchange_dead"
-	AtclLikeQueue           = "taotao_atcl_like"
-	AtclLikeDeadQueue       = "taotao_atcl_like_dead"
+	VideoFavoriteExchange     = "douyin_video_favorite_exchange"
+	VideoFavoriteDeadExchange = "douyin_video_favorite_exchange_dead"
+	VideoFavoriteQueue        = "douyin_video_favorite"
+	VideoFavoriteDeadQueue    = "douyin_video_favorite_dead"
+	VideoLikeExchange         = "douyin_video_like_exchange"
+	VideoLikeDeadExchange     = "douyin_video_like_exchange_dead"
+	VideoLikeQueue            = "douyin_video_like"
+	VideoLikeDeadQueue        = "douyin_video_like_dead"
 )
 
-type CcMessage struct {
-	RedisKey  string
-	Time      time.Time
-	UserId    int64
-	IsCollect bool
-}
+type (
+	VFMessage struct {
+		RedisKey  string
+		Time      time.Time
+		UserId    int64
+		IsCollect bool
+	}
 
-type VMessage struct {
-	RedisKey    string
-	Time        time.Time
-	IsCommodity bool
-}
-
-type LMessage struct {
-	RedisKey string
-	Time     time.Time
-	UserId   int64
-}
+	VLMessage struct {
+		RedisKey string
+		Time     time.Time
+		UserId   int64
+	}
+)

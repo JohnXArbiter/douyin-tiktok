@@ -12,7 +12,7 @@ import (
 )
 
 func TestMongo(t *testing.T) {
-	mc := utils.InitMongo(utils.Mongo{Url: "mongodb://admin:admin@43.143.241.157:27017"})
+	mc := utils.InitMongo(utils.MongoConf{Url: "mongodb://admin:admin@43.143.241.157:27017"})
 
 	collection := mc.Database("douyin_user").Collection("user_relation")
 

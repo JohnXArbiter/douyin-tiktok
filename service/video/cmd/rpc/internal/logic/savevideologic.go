@@ -30,7 +30,7 @@ func (l *SaveVideoLogic) SaveVideo(in *__.SaveVideoReq) (*__.SaveVideoResp, erro
 		UserId:    in.UserId,
 		PlayUrl:   in.Url,
 		Title:     in.Title,
-		PublishAt: time.Now().Local(),
+		PublishAt: time.Now().Unix(),
 	}
 	id, err := l.svcCtx.VideoInfo.Insert(videoInfo)
 	if err != nil {

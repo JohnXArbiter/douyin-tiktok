@@ -73,23 +73,13 @@ const (
 	VideoFavoriteDeadExchange = "douyin_video_favorite_exchange_dead"
 	VideoFavoriteQueue        = "douyin_video_favorite"
 	VideoFavoriteDeadQueue    = "douyin_video_favorite_dead"
-	VideoLikeExchange         = "douyin_video_like_exchange"
-	VideoLikeDeadExchange     = "douyin_video_like_exchange_dead"
-	VideoLikeQueue            = "douyin_video_like"
-	VideoLikeDeadQueue        = "douyin_video_like_dead"
 )
 
 type (
 	VFMessage struct {
-		RedisKey  string
-		Time      time.Time
-		UserId    int64
-		IsCollect bool
-	}
-
-	VLMessage struct {
-		RedisKey string
-		Time     time.Time
-		UserId   int64
+		Time     time.Time `json:"time"`
+		UserId   int64     `json:"userId"`
+		VideoId  int64     `json:"videoId"`
+		IsCancel int8      `json:"isCancel"`
 	}
 )

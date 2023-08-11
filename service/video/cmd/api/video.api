@@ -14,7 +14,7 @@ info(
 )
 service video-api {
 	@handler feed
-	get / (CommentActionReq) returns ()
+	get / (FeedReq) returns ()
 }
 
 @server(

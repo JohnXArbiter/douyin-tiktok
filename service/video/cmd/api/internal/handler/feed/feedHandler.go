@@ -1,6 +1,8 @@
 package feed
 
 import (
+	"douyin-tiktok/common/middleware"
+	"douyin-tiktok/common/utils"
 	"net/http"
 
 	"douyin-tiktok/service/video/cmd/api/internal/logic/feed"
@@ -11,18 +13,23 @@ import (
 
 func FeedHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.CommentActionReq
+		var req types.FeedReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))
+			return
+		}
+
+		loggedUser, err := middleware.JwtAuthenticate(r, req.Token)
+		if err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := feed.NewFeedLogic(r.Context(), svcCtx)
-		err := l.Feed(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+		if resp, err := l.Feed(&req, loggedUser); err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {
-			httpx.Ok(w)
+			httpx.OkJson(w, resp)
 		}
 	}
 }

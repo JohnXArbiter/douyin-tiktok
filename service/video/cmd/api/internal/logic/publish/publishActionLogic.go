@@ -62,7 +62,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 			UserId:    userId,
 			CoverUrl:  "", // TODO 设置一个默认值
 			Title:     req.Title,
-			PublishAt: time.Now().Local(),
+			PublishAt: time.Now().Unix(),
 		}
 		if _, err = tx.Insert(videoInfo); err != nil {
 			logx.Errorf("[DB ERROR] PublishAction 插入视频（作品）失败 %v\n", err)

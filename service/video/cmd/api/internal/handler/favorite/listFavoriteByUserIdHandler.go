@@ -1,6 +1,8 @@
 package favorite
 
 import (
+	"douyin-tiktok/common/middleware"
+	"douyin-tiktok/common/utils"
 	"net/http"
 
 	"douyin-tiktok/service/video/cmd/api/internal/logic/favorite"
@@ -13,16 +15,20 @@ func ListFavoriteByUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJson(w, utils.GenErrorResp("请求参数错误"))
+			return
+		}
+
+		if _, err := middleware.JwtAuthenticate(r, req.Token); err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 			return
 		}
 
 		l := favorite.NewListFavoriteByUserIdLogic(r.Context(), svcCtx)
-		err := l.ListFavoriteByUserId(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+		if resp, err := l.ListFavoriteByUserId(&req); err != nil {
+			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {
-			httpx.Ok(w)
+			httpx.OkJson(w, resp)
 		}
 	}
 }

@@ -37,7 +37,7 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 { //
 		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
-		if (userRelation == nil && err == nil) || userRelation.Fans == nil || userRelation.Follows == nil {
+		if (userRelation == nil && err == nil) || (len(userRelation.Fans) == 0 && len(userRelation.Follows) == 0) {
 			return make([]model.UserInfo, 0)
 		} else if err != nil {
 			return nil

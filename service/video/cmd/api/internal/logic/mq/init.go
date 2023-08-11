@@ -13,7 +13,6 @@ func InitRabbitMQ(svcCtx *svc.ServiceContext) {
 	go InitVFPublisher(svcCtx.RmqCore)
 
 	go StartVFConsumer(svcCtx.RmqCore.Conn)
-	go StartVLConsumer(svcCtx.RmqCore.Conn)
 }
 
 func InitVFPublisher(core *utils.RabbitmqCore) {

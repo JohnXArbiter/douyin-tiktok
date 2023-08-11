@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/service/file/cmd/rpc/fileservice"
 	"douyin-tiktok/service/user/cmd/rpc/userservice"
 	"douyin-tiktok/service/video/cmd/api/internal/config"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/redis/go-redis/v9"
 	"github.com/yitter/idgenerator-go/idgen"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -28,6 +29,8 @@ type ServiceContext struct {
 	Redis *redis.Client
 
 	RmqCore *utils.RabbitmqCore
+
+	Json jsoniter.API
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -48,5 +51,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc:       userservice.NewUserService(zrpc.MustNewClient(c.UserRpc)),
 		FileRpc:       fileservice.NewFileService(zrpc.MustNewClient(c.FileRpc)),
 		Redis:         utils.InitRedis(c.Redis),
+		Json:          jsoniter.ConfigCompatibleWithStandardLibrary,
 	}
 }

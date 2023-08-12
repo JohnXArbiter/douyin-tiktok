@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -27,22 +28,28 @@ func NewFavoriteCommonLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Fa
 	}
 }
 
-func (l *FavoriteCommonLogic) LoadIdsAndStore(key string, userId int64) ([]redis.Z, error) {
-	var zs, err = l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
+func (l *FavoriteCommonLogic) LoadIdsAndStore(key string, userId int64) ([]int64, error) {
+	var ids []int64
+
+	zs, err := l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
 	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] ListFavoriteVideos sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 {
 		var videoFavorite, err = l.LoadIdsFromMongo(userId)
 		if (videoFavorite == nil && err == nil) || len(videoFavorite.FavoriteVideos) == 0 {
-			return make([]redis.Z, 0), nil
+			return ids, nil
 		} else if err != nil {
 			return nil, errors.New("出错啦")
 		}
 
-		favoriteVideos := l.reverse(videoFavorite.FavoriteVideos)
-		zs, _ = l.StoreFavoriteVideos2Redis(favoriteVideos, key)
+		ids, _ = l.StoreFavoriteVideos2Redis(videoFavorite.FavoriteVideos, key)
+	} else {
+		for _, z := range zs {
+			videoId, _ := strconv.ParseInt(z.Member.(string), 10, 64)
+			ids = append(ids, videoId)
+		}
 	}
-	return zs, nil
+	return ids, nil
 }
 
 // LoadIdsFromMongo 从 mongo 中取 favorite_videos 字段
@@ -61,30 +68,21 @@ func (l *FavoriteCommonLogic) LoadIdsFromMongo(id int64) (*model.VideoFavorite, 
 	return &videoFavorite, nil
 }
 
-// 倒序排
-func (l *FavoriteCommonLogic) reverse(videos []model.FavoriteVideos) []model.FavoriteVideos {
-	var res []model.FavoriteVideos
-
-	length := len(videos) - 1
-	for i := length; i >= 0; i-- {
-		res = append(res, videos[i])
-	}
-	return res
-}
-
-func (l *FavoriteCommonLogic) StoreFavoriteVideos2Redis(videos []model.FavoriteVideos, key string) ([]redis.Z, error) {
-	var zs []redis.Z
+func (l *FavoriteCommonLogic) StoreFavoriteVideos2Redis(videos model.FavoriteVideos, key string) ([]int64, error) {
+	var zs, ids = make([]redis.Z, 0), make([]int64, 0)
+	sort.Sort(videos)
 	for _, video := range videos {
 		z := redis.Z{
 			Score:  float64(video.Time),
 			Member: strconv.FormatInt(video.VideoId, 10),
 		}
 		zs = append(zs, z)
+		ids = append(ids, video.VideoId)
 	}
 	if err := l.svcCtx.Redis.ZAdd(l.ctx, key, zs...).Err(); err != nil {
 		logx.Errorf("[REDIS ERROR] StoreFavoriteVideos2Redis 点赞列表存储redis失败 %v\n", err)
-		return zs, err
+		return nil, err
 	}
 	l.svcCtx.Redis.Expire(l.ctx, key, time.Minute*10)
-	return zs, nil
+	return ids, nil
 }

@@ -80,16 +80,20 @@ func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[str
 	return resp, nil
 }
 
-func (l *FeedLogic) GetUserInfoListFromRpc(rpcChan chan []*__user.User, uids []int64, targetUserId int64) {
-	var req = &__user.GetInfoListReq{
-		UserIds:      uids,
-		TargetUserId: targetUserId,
+func (l *FeedLogic) GetUserInfoListFromRpc(rpcChan chan []*__user.User, targetUserIds []int64, userId int64) {
+	var res []*__user.User = nil
+	defer func() {
+		rpcChan <- res
+	}()
+
+	req := &__user.GetInfoListReq{
+		TargetUserIds: targetUserIds,
+		UserId:        userId,
 	}
 	resp, err := l.svcCtx.UserRpc.GetInfoList(l.ctx, req)
 	if err == nil && resp.Code == 0 {
-		rpcChan <- resp.Users
+		res = resp.Users
 	} else {
 		logx.Errorf("[RPC ERROR] Feed->GetUserInfoListFromRpc 获取用户信息失败 %v\n", err)
-		rpcChan <- nil
 	}
 }

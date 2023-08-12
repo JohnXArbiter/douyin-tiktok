@@ -37,14 +37,17 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 { //
 		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
-		if (userRelation == nil && err == nil) || (len(userRelation.Fans) == 0 && len(userRelation.Follows) == 0) {
+		if (userRelation == nil && err == nil) || (len(userRelation.Fans) == 0 && len(userRelation.Followers) == 0) {
 			return make([]model.UserInfo, 0)
 		} else if err != nil {
 			return nil
 		}
 
-		relatedUsers := l.reverse(userRelation, isFollow)
-		zs, _ = l.StoreRelatedUsers2Redis(relatedUsers, key)
+		if isFollow == 1 {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Followers, key)
+		} else {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Fans, key)
+		}
 	}
 
 	for _, z := range zs {
@@ -88,24 +91,7 @@ func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserR
 	return &userRelation, nil
 }
 
-// 倒序排
-func (l *RelationCommonLogic) reverse(userRelation *model.UserRelation, isFollow int64) []model.RelatedUsers {
-	var users, res []model.RelatedUsers
-
-	if isFollow == 1 {
-		users = userRelation.Follows
-	} else {
-		users = userRelation.Fans
-	}
-
-	length := len(users) - 1
-	for i := length; i >= 0; i-- {
-		res = append(res, users[i])
-	}
-	return res
-}
-
-func (l *RelationCommonLogic) StoreRelatedUsers2Redis(relatedUsers []model.RelatedUsers, key string) ([]redis.Z, error) {
+func (l *RelationCommonLogic) StoreRelatedUsers2Redis(relatedUsers model.RelatedUsers, key string) ([]redis.Z, error) {
 	var zs []redis.Z
 	for _, user := range relatedUsers {
 		z := redis.Z{

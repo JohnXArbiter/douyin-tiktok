@@ -45,7 +45,7 @@ func (l *ListCommentsByVideoIdLogic) ListCommentsByVideoId(req *types.VideoIdReq
 
 	// 2.rpc 获取用户信息
 	resp := utils.GenOkResp()
-	getInfoListReq := __user.GetInfoListReq{UserIds: ids, TargetUserId: 0}
+	getInfoListReq := __user.GetInfoListReq{TargetUserIds: ids, UserId: 0}
 	getInfoListResp, err := l.svcCtx.UserRpc.GetInfoList(l.ctx, &getInfoListReq)
 	if err != nil || getInfoListResp.Code != 0 {
 		logx.Errorf("[DB ERROR] ListCommentsByVideoId rpc 获取用户信息失败 %v\n", err)

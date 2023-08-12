@@ -50,7 +50,7 @@ func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 	filter := bson.M{"_id": userId}
 	option := options.Update().SetUpsert(true)
 	favoriteVideo := bson.M{"$addToSet": bson.M{
-		"favorite_videos": model.FavoriteVideos{
+		"favorite_videos": model.FavoriteVideo{
 			VideoId: videoId,
 			Time:    int64(score),
 		},

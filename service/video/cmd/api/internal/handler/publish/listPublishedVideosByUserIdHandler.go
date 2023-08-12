@@ -11,7 +11,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func ListPublishedUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ListPublishedVideosByUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserIdReq
 		if err := httpx.ParseForm(r, &req); err != nil {
@@ -25,8 +25,8 @@ func ListPublishedUserIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := publish.NewListPublishedUserIdLogic(r.Context(), svcCtx)
-		resp, err := l.ListPublishedUserId(&req, loggedUser)
+		l := publish.NewListPublishedVideosByUserIdLogic(r.Context(), svcCtx)
+		resp, err := l.ListPublishedVideosByUserId(&req, loggedUser)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

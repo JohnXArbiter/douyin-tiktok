@@ -31,12 +31,11 @@ func (l *MessageActionLogic) MessageAction(req *types.MessageAction, logged *uti
 	var actionType = req.ActionType
 
 	if actionType == 1 {
-		now := time.Now()
 		msg := &model.UserMessage{
 			UserId:     logged.Id,
 			ToUserId:   req.ToUserId,
 			Content:    req.Content,
-			CreateTime: now,
+			CreateTime: time.Now().Local(),
 		}
 		if _, err := l.svcCtx.UserMessage.Insert(msg); err != nil {
 			logx.Errorf("[DB ERROR] MessageAction 插入聊天记录失败 %v\n", err)

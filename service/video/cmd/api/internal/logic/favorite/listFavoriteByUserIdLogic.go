@@ -34,25 +34,24 @@ func (l *ListFavoriteByUserIdLogic) ListFavoriteByUserId(req *types.UserIdReq) (
 		userId    = req.UserId
 		userIdStr = strconv.FormatInt(userId, 10)
 		key       = utils.VideoFavorite + userIdStr
+		videoIds  []int64
 		resp      = utils.GenOkResp()
 	)
-
-	favoriteCommonLogic := NewFavoriteCommonLogic(l.ctx, l.svcCtx)
 
 	zs, err := l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
 	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] ListFavoriteVideos sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 {
-		zs, err = favoriteCommonLogic.LoadIdsAndStore(key, userId)
+		favoriteCommonLogic := NewFavoriteCommonLogic(l.ctx, l.svcCtx)
+		videoIds, err = favoriteCommonLogic.LoadIdsAndStore(key, userId)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	videoIds := make([]int64, 0)
-	for _, z := range zs {
-		id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
-		videoIds = append(videoIds, id)
+	} else {
+		for _, z := range zs {
+			id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
+			videoIds = append(videoIds, id)
+		}
 	}
 
 	videoInfos := make([]model.VideoInfo, 0)
@@ -67,7 +66,10 @@ func (l *ListFavoriteByUserIdLogic) ListFavoriteByUserId(req *types.UserIdReq) (
 		visMap[videoInfo.Id] = &videoInfo
 	}
 
-	getInfoListReq := &__.GetInfoListReq{UserIds: userIds}
+	getInfoListReq := &__.GetInfoListReq{
+		TargetUserIds: userIds,
+		UserId:        userId,
+	}
 	getInfoListResp, err := l.svcCtx.UserRpc.GetInfoList(l.ctx, getInfoListReq)
 	if err != nil || getInfoListResp.Code != 0 {
 		logx.Errorf("[RPC ERROR] ListFavoriteByUserId 获取用户信息失败 %v\n", err)

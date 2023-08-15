@@ -67,14 +67,14 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 	}
 
 	// 2.将要关注的用户保存到 follows 字段中
-	relatedUser := model.RelatedUsers{
+	relatedUser := model.RelatedUser{
 		UserId: toUserId,
 		Time:   now,
 	}
 	updateOpt := options.Update().SetUpsert(true)
 	filter := bson.M{"_id": userId}
 	followedUser := bson.M{"$addToSet": bson.M{
-		"follows": relatedUser,
+		"followers": relatedUser,
 	}}
 	_, err := l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, followedUser, updateOpt)
 	if err != nil {
@@ -104,7 +104,7 @@ func (l *RelationActionLogic) unFollow(userId, toUserId int64) error {
 
 	// 2.删掉当前用户的 follows 字段的元素
 	filter := bson.M{"_id": userId}
-	targetUser := bson.M{"$pull": bson.M{"follows": bson.M{"user_id": toUserId}}}
+	targetUser := bson.M{"$pull": bson.M{"followers": bson.M{"user_id": toUserId}}}
 	_, err := l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, targetUser)
 	if err != nil {
 		return err

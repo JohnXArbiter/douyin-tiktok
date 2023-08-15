@@ -35,7 +35,7 @@ func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *multipart.FileHeader, loggedUser *utils.JwtUser) error {
 	var (
 		userId    = loggedUser.Id
-		respChan  = make(chan *__file.UploadVideoResp)
+		rpcChan   = make(chan *__file.UploadVideoResp)
 		videoId   = idgen.NextId()
 		videoName = header.Filename
 	)
@@ -76,16 +76,16 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 			VideoFile: videoBytes,
 			VideoId:   videoId,
 		}
-		go l.saveVideoInfo(respChan, uploadVideoReq)
+		go l.saveVideoInfo(rpcChan, uploadVideoReq)
 
-		uploadVideoResp := <-respChan // 阻塞等待
-		if uploadVideoResp.GetCode() == -1 {
+		uploadVideoResp := <-rpcChan // 阻塞等待
+		if uploadVideoResp.Code == -1 {
 			return nil, errors.New("视频上传失败！")
 		}
 
-		objectName := uploadVideoResp.GetObjectName()
+		objectName := uploadVideoResp.ObjectName
 		videoInfo.VideoObjectName = objectName
-		videoInfo.PlayUrl = uploadVideoResp.GetPlayUrl()
+		videoInfo.PlayUrl = uploadVideoResp.PlayUrl
 		_, err = tx.Cols("file_video_id", "play_url").Update(videoInfo)
 		if err == nil {
 			logx.Errorf("[DB ERROR] PublishAction 更新视频（作品）失败 %v\n", err)
@@ -100,10 +100,10 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 	return err
 }
 
-func (l *PublishActionLogic) saveVideoInfo(dataChan chan *__file.UploadVideoResp, req *__file.UploadVideoReq) {
+func (l *PublishActionLogic) saveVideoInfo(rpcChan chan *__file.UploadVideoResp, req *__file.UploadVideoReq) {
 	var data = &__file.UploadVideoResp{Code: -1}
 	defer func() {
-		dataChan <- data
+		rpcChan <- data
 	}()
 
 	if resp, err := l.svcCtx.FileRpc.UploadVideo(l.ctx, req); err != nil {

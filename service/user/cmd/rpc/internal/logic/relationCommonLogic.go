@@ -26,45 +26,23 @@ func NewRelationCommonLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 	}
 }
 
-func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, key string) []model.UserInfo {
-	var (
-		ids       []int64
-		userInfos []model.UserInfo
-	)
-
-	zs, err := l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
+func (l *RelationCommonLogic) LoadIdsAndStore(userId, isFollow int64, key string) []redis.Z {
+	var zs, err = l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
 	if err != nil && err != redis.Nil {
-		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
+		logx.Errorf("[REDIS ERROR] LoadIdsAndStore sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 { //
 		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
-		if (userRelation == nil && err == nil) || userRelation.Fans == nil || userRelation.Follows == nil {
-			return make([]model.UserInfo, 0)
-		} else if err != nil {
-			return nil
+		if (userRelation == nil && err == nil) || err != nil {
+			return make([]redis.Z, 0)
 		}
 
-		relatedUsers := l.reverse(userRelation, isFollow)
-		zs, _ = l.StoreRelatedUsers2Redis(relatedUsers, key)
+		if isFollow == 1 {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Followers, key)
+		} else {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Fans, key)
+		}
 	}
-
-	for _, z := range zs {
-		id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
-		ids = append(ids, id)
-	}
-	if err = l.svcCtx.UserInfo.In("`id`", ids).Cols("`id`, `name`, `avatar`").Find(&userInfos); err != nil {
-		logx.Errorf("[DB ERROR] ListFollowedUserByUserId 批量查询userInfo失败 %v\n", err)
-		return nil
-	}
-
-	uiMap := make(map[int64]model.UserInfo)
-	for _, info := range userInfos {
-		uiMap[info.Id] = info
-	}
-	for i, id := range ids {
-		userInfos[i] = uiMap[id]
-	}
-
-	return userInfos
+	return zs
 }
 
 // LoadIdsFromMongo 从 mongo 中取 follows 或 fans 字段
@@ -88,24 +66,7 @@ func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserR
 	return &userRelation, nil
 }
 
-// 倒序排
-func (l *RelationCommonLogic) reverse(userRelation *model.UserRelation, isFollow int64) []model.RelatedUsers {
-	var users, res []model.RelatedUsers
-
-	if isFollow == 1 {
-		users = userRelation.Follows
-	} else {
-		users = userRelation.Fans
-	}
-
-	length := len(users) - 1
-	for i := length; i >= 0; i-- {
-		res = append(res, users[i])
-	}
-	return res
-}
-
-func (l *RelationCommonLogic) StoreRelatedUsers2Redis(relatedUsers []model.RelatedUsers, key string) ([]redis.Z, error) {
+func (l *RelationCommonLogic) StoreRelatedUsers2Redis(relatedUsers model.RelatedUsers, key string) ([]redis.Z, error) {
 	var zs []redis.Z
 	for _, user := range relatedUsers {
 		z := redis.Z{

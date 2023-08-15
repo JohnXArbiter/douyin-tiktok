@@ -18,7 +18,7 @@ func TestMongo(t *testing.T) {
 
 	ur := userModel.UserRelation{
 		UserId: 12,
-		Follows: []userModel.RelatedUsers{{
+		Followers: []userModel.RelatedUser{{
 			UserId: 123,
 			Time:   time.Now().Unix(),
 		}},

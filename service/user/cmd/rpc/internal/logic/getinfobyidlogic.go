@@ -49,25 +49,13 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 		}
 		if score != 0 {
 			isFollow = true
-		}
-		relationCommonLogic := NewRelationCommonLogic(l.ctx, l.svcCtx)
-		userRelation, err := relationCommonLogic.LoadIdsFromMongo(userId, 1)
-		if userRelation == nil && err == nil {
-			isFollow = true
-		} else if err == nil {
-			zs, err := relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Follows, key)
-			if err == nil {
-				if err = l.svcCtx.Redis.ZAdd(l.ctx, key, zs...).Err(); err != nil {
-					logx.Errorf("[REDIS ERROR] StoreRelatedUsers2Redis 关注列表存储redis失败 %v\n", err)
-				} else {
-					score = l.svcCtx.Redis.ZScore(l.ctx, key, targetUserIdStr).Val()
-					if score != 0 {
-						isFollow = true
-					}
-				}
-			}
 		} else {
-			logx.Errorf("[DB ERROR] GetInfoById rpc查询关注记录失败 %v\n", err)
+			relationCommonLogic := NewRelationCommonLogic(l.ctx, l.svcCtx)
+			userRelation, err := relationCommonLogic.LoadIdsFromMongo(userId, 1)
+			if userRelation != nil && err == nil {
+				_, _ = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Followers, key)
+				isFollow = true
+			}
 		}
 	}
 
@@ -85,9 +73,6 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 		FavoriteCount:   &userInfo.FavoriteCount,
 	}
 
-	resp := &__.GetInfoByIdResp{
-		Code: 0,
-		User: user,
-	}
+	resp := &__.GetInfoByIdResp{User: user}
 	return resp, nil
 }

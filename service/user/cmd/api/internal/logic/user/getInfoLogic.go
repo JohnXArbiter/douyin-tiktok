@@ -73,7 +73,7 @@ func (l *GetInfoLogic) isFollowed(userId, targetUserId int64) bool {
 	}
 
 	flag, zs := false, make([]redis.Z, 0)
-	for _, follow := range userRelation.Follows {
+	for _, follow := range userRelation.Followers {
 		z := redis.Z{Score: float64(follow.Time), Member: follow.UserId}
 		zs = append(zs, z)
 		if follow.UserId == targetUserId {

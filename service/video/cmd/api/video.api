@@ -49,7 +49,7 @@ service video-api {
 	@handler publishAction
 	post /action (PublishActionReq) returns ()
 	
-	@handler listPublishedUserId
+	@handler listPublishedVideosByUserId
 	get /list (UserIdReq) returns ()
 }
 

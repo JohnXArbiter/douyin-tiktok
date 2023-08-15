@@ -67,7 +67,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/list",
-				Handler: publish.ListPublishedUserIdHandler(serverCtx),
+				Handler: publish.ListPublishedVideosByUserIdHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/douyin/publish"),

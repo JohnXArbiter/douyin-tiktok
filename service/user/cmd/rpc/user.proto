@@ -24,8 +24,8 @@ message GetInfoByIdResp {
 }
 
 message GetInfoListReq {
-  repeated int64 UserIds = 1;
-  int64 TargetUserId = 2;
+  repeated int64 TargetUserIds = 1;
+  int64 UserId = 2;
 }
 
 message GetInfoListResp {

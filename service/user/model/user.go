@@ -21,12 +21,29 @@ type UserInfo struct {
 }
 
 type UserRelation struct {
-	UserId  int64          `json:"user_id" bson:"_id"`
-	Follows []RelatedUsers `json:"follows" bson:"follows"`
-	Fans    []RelatedUsers `json:"fans" bson:"fans"`
+	UserId    int64        `json:"user_id" bson:"_id"`
+	Followers RelatedUsers `json:"followers" bson:"followers"`
+	Fans      RelatedUsers `json:"fans" bson:"fans"`
 }
 
-type RelatedUsers struct {
+type RelatedUsers []RelatedUser
+
+func (v RelatedUsers) Less(i, j int) bool {
+	if v[i].Time < v[j].Time {
+		return false
+	}
+	return true
+}
+
+func (v RelatedUsers) Len() int {
+	return len(v)
+}
+
+func (v RelatedUsers) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
+}
+
+type RelatedUser struct {
 	UserId int64 `json:"user_id" bson:"user_id"`
 	Time   int64 `json:"time" bson:"time"`
 }

@@ -15,13 +15,30 @@ type VideoInfo struct {
 }
 
 type VideoFavorite struct {
-	UserId         int64            `json:"_id" bson:"user_id"` // mongo 主键存 userId
-	FavoriteVideos []FavoriteVideos `json:"favorite_videos" bson:"favorite_videos"`
+	UserId         int64          `json:"_id" bson:"user_id"` // mongo 主键存 userId
+	FavoriteVideos FavoriteVideos `json:"favorite_videos" bson:"favorite_videos"`
 }
 
-type FavoriteVideos struct {
+type FavoriteVideos []FavoriteVideo
+
+type FavoriteVideo struct {
 	VideoId int64 `json:"video_id" bson:"videoId"`
 	Time    int64 `json:"time" bson:"time"`
+}
+
+func (v FavoriteVideos) Less(i, j int) bool {
+	if v[i].Time < v[j].Time {
+		return false
+	}
+	return true
+}
+
+func (v FavoriteVideos) Len() int {
+	return len(v)
+}
+
+func (v FavoriteVideos) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
 }
 
 type VideoComment struct {

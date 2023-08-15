@@ -45,7 +45,7 @@ func (l *ListFriendsByUserIdLogic) ListFriendsByUserId(req *types.UserIdReq) (ma
 			resp["user_list"] = make([]struct{}, 0)
 			return resp, nil
 		}
-		_, err = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Follows, followKey)
+		_, err = relationCommonLogic.StoreRelatedUsers2Redis(userRelation.Followers, followKey)
 		if err != nil {
 			return nil, errors.New("出错啦")
 		}

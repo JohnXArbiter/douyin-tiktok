@@ -55,7 +55,7 @@ service video-api {
 
 type (
 	TokenReq {
-		Token string `form:"token"`
+		Token string `form:"token,optional"`
 	}
 
 	FeedReq {

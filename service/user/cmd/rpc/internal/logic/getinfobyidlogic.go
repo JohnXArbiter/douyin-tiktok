@@ -36,8 +36,8 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 	)
 
 	var userInfo = &model.UserInfo{Id: in.UserId}
-	err := l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").Find(userInfo)
-	if err != nil {
+	has, err := l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").Get(userInfo)
+	if err != nil || !has {
 		logx.Errorf("[DB ERROR] GetInfoById rpc根据id查询用户信息失败 %v\n", err)
 		return &__.GetInfoByIdResp{Code: -1}, err
 	}

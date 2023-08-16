@@ -2,7 +2,7 @@
 package types
 
 type TokenReq struct {
-	Token string `form:"token"`
+	Token string `form:"token,optional"`
 }
 
 type FeedReq struct {

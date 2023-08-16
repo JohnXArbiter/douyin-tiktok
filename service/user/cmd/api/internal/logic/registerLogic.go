@@ -69,7 +69,7 @@ func (l *RegisterLogic) validate(req *types.LoginReq) (*model.UserInfo, error) {
 		username = strings.TrimSpace(req.Username)
 		password = []byte(strings.TrimSpace(req.Password))
 		uPattern = "^[a-zA-Z0-9]{6,20}$"
-		pPattern = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]{8,20}$"
+		pPattern = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]{6,20}$"
 	)
 
 	fmt.Println(username, password)

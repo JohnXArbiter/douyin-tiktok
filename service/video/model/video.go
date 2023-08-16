@@ -11,7 +11,7 @@ type VideoInfo struct {
 	PublishAt       int64       `json:"-"`
 	VideoObjectName string      `json:"video_object_name"`              // 视频文件object名
 	IsFavorite      bool        `json:"is_favorite,omitempty" xorm:"-"` // true-已点赞，false-未点赞
-	Author          interface{} `json:"author,omitempty"`
+	Author          interface{} `json:"author,omitempty" xorm:"-"'`
 }
 
 type VideoFavorite struct {

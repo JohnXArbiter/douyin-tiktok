@@ -36,7 +36,7 @@ func (l *FavoriteCommonLogic) LoadIdsAndStore(key string, userId int64) ([]int64
 		logx.Errorf("[REDIS ERROR] ListFavoriteVideos sth wrong with redis %v\n", err)
 	} else if err == redis.Nil || len(zs) == 0 {
 		var videoFavorite, err = l.LoadIdsFromMongo(userId)
-		if (videoFavorite == nil && err == nil) || len(videoFavorite.FavoriteVideos) == 0 {
+		if (videoFavorite == nil && err == nil) || (videoFavorite != nil && len(videoFavorite.FavoriteVideos) == 0) {
 			return ids, nil
 		} else if err != nil {
 			return nil, errors.New("出错啦")

@@ -13,6 +13,8 @@ import (
 
 func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 50*1024*1024)
+
 		var req types.PublishActionReq
 		if err := httpx.ParseForm(r, &req); err != nil {
 			httpx.OkJson(w, utils.GenErrorResp("参数错误！😥"))

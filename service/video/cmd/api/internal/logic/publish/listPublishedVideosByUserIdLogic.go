@@ -8,6 +8,7 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/types"
 	"douyin-tiktok/service/video/model"
 	"errors"
+	"fmt"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -64,6 +65,7 @@ func (l *ListPublishedVideosByUserIdLogic) fetchUserInfo(rpcChan chan *__user.Us
 		rpcChan <- res
 	}()
 
+	fmt.Println(req)
 	resp, err := l.svcCtx.UserRpc.GetInfoById(l.ctx, req)
 	if err != nil || resp.Code != 0 {
 		logx.Errorf("[RPC ERROR] fetchUserInfo rpc 获取用户信息失败 %v\n", err)

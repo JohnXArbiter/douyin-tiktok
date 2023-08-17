@@ -1,18 +1,21 @@
 package config
 
-import "github.com/zeromicro/go-zero/zrpc"
+import (
+	"douyin-tiktok/common/utils"
+	"github.com/zeromicro/go-zero/zrpc"
+	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
+)
 
 type Config struct {
 	zrpc.RpcServerConf
+	Consul consul.Conf
+	Mysql  utils.MysqlConf
+	Oss    Oss
+}
 
-	Mysql struct {
-		Dsn string
-	}
-
-	Oss struct {
-		AccessKeyId     string
-		AccessKeySecret string
-		EndPoint        string
-		BucketName      string
-	}
+type Oss struct {
+	EndPoint        string
+	AccessKeyId     string
+	AccessKeySecret string
+	BucketName      string
 }

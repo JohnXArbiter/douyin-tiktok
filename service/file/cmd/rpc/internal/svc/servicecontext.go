@@ -31,6 +31,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	accessKeyId := c.Oss.AccessKeyId
 	accessKeySecret := c.Oss.AccessKeySecret
 	bucketName := c.Oss.BucketName
+
 	client, err := oss.New(endPoint, accessKeyId, accessKeySecret)
 	if err != nil {
 		panic("[OSS ERROR] NewServiceContext 获取OSS连接错误" + err.Error())

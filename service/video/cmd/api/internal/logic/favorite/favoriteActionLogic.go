@@ -42,7 +42,8 @@ func (l *FavoriteActionLogic) FavoriteAction(req *types.FavoriteActionReq, logge
 
 	if actionType == 1 {
 		score, err := l.svcCtx.Redis.ZScore(l.ctx, key, videoIdStr).Result()
-		if err != nil {
+		if err != nil && err != redis.Nil {
+			logx.Errorf("[REDIS ERROR] FavoriteAction %v\n", err)
 			return errors.New("出错啦")
 		} else if score != 0 {
 			return errors.New("你已经点过赞了哦😊")
@@ -54,7 +55,7 @@ func (l *FavoriteActionLogic) FavoriteAction(req *types.FavoriteActionReq, logge
 			return errors.New("出错啦")
 		}
 		rabbitMQLogic.FavoriteUpdatePublisher(videoId, userId, 0)
-	} else if actionType != 2 {
+	} else if actionType == 2 {
 		if exists := l.svcCtx.Redis.Exists(l.ctx, key).Val(); exists == 1 {
 			if res, err := l.svcCtx.Redis.ZRem(l.ctx, key, videoId).Result(); err != nil {
 				return errors.New("出错啦")

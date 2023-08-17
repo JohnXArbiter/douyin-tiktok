@@ -6,8 +6,10 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
+	"math/rand"
 	"mime/multipart"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -99,7 +101,7 @@ func genObjectName(filename string, belong string) string {
 	suffix := path.Ext(filename)
 	filename = strings.TrimSuffix(filename, suffix)
 	t := time.Now()
-	fragmt1 := "file/" + t.Format("2006-01") + "/" + t.Format("02")
-	fragmt2 := "/" + belong + "/" + filename + time.Now().Format("15:04:05") + suffix
+	fragmt1 := "file/" + t.Format("2006-01") + "/" + belong
+	fragmt2 := "/" + filename + strconv.Itoa(rand.Int()) + time.Now().Format("02") + suffix
 	return fragmt1 + fragmt2
 }

@@ -40,6 +40,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	idgen.SetIdGenerator(options)
 
 	mc := utils.InitMongo(c.Mongo)
+	rc, channel := utils.InitRabbitMQ(c.RabbitMQ)
 
 	return &ServiceContext{
 		Config:        c,
@@ -52,5 +53,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		FileRpc:       fileservice.NewFileService(zrpc.MustNewClient(c.FileRpc)),
 		Redis:         utils.InitRedis(c.Redis),
 		Json:          jsoniter.ConfigCompatibleWithStandardLibrary,
+		RmqCore: &utils.RabbitmqCore{
+			Conn:    rc,
+			Channel: channel,
+		},
 	}
 }

@@ -47,7 +47,7 @@ func (l *UploadVideoLogic) UploadVideo(in *__.UploadVideoReq) (*__.UploadVideoRe
 		VideoId:    in.GetVideoId(),
 		ObjectName: objectName,
 		Url:        url,
-		UploadAt:   time.Time{},
+		UploadAt:   time.Now().Unix(),
 	}
 	if _, err = l.svcCtx.FileVideo.Insert(fileVideo); err != nil {
 		go ossLogic.Delete(objectName)

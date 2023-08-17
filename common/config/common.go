@@ -4,8 +4,6 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -14,29 +12,6 @@ type (
 	Consul struct {
 		Addr string `yaml:"Addr"`
 		Key  string `yaml:"Key"`
-	}
-
-	ApiConf struct {
-		rest.RestConf
-		//Mysql    utils.Mysql
-		//Redis    utils.Redis
-		//Mongo    utils.Mongo
-		//RabbitMQ utils.RabbitMQConf
-		//Idgen    struct {
-		//	WorkerId uint16
-		//}
-	}
-
-	RpcConf struct {
-		zrpc.RpcServerConf
-		//Consul   consul.Conf        `yaml:"Consul"`
-		//Mysql    utils.Mysql        `yaml:"Mysql"`
-		//Redis    utils.Redis        `yaml:"Redis"`
-		//Mongo    utils.Mongo        `yaml:"Mongo"`
-		//RabbitMQ utils.RabbitMQConf `yaml:"RabbitMQ"`
-		//Idgen    struct {
-		//	WorkerId uint16
-		//}
 	}
 
 	ConsulConf struct {

@@ -88,12 +88,12 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 		videoInfo.PlayUrl = uploadVideoResp.PlayUrl
 		_, err = tx.Cols("file_video_id", "play_url").Update(videoInfo)
 		if err == nil {
-			logx.Errorf("[DB ERROR] PublishAction 更新视频（作品）失败 %v\n", err)
 			return nil, nil
 		}
 
 		removeVideoReq := &__file.RemoveVideoReq{ObjectName: objectName}
 		go l.svcCtx.FileRpc.RemoveVideo(l.ctx, removeVideoReq) // 保证原子性，删除 oss 文件
+		logx.Errorf("[DB ERROR] PublishAction 更新视频（作品）失败 %v\n", err)
 		return nil, errors.New("视频上传失败！")
 	})
 
@@ -106,8 +106,9 @@ func (l *PublishActionLogic) saveVideoInfo(rpcChan chan *__file.UploadVideoResp,
 		rpcChan <- data
 	}()
 
-	if resp, err := l.svcCtx.FileRpc.UploadVideo(l.ctx, req); err != nil {
-		logx.Errorf("[RPC ERROR] PublishAction 入新增视频失败 %v\n", err)
+	resp, err := l.svcCtx.FileRpc.UploadVideo(l.ctx, req)
+	if err != nil {
+		logx.Errorf("[RPC ERROR] PublishAction 上传视频失败 %v\n", err)
 	} else {
 		data = resp
 	}

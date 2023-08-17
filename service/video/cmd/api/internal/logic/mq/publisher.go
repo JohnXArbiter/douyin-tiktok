@@ -2,6 +2,7 @@ package mq
 
 import (
 	"douyin-tiktok/common/utils"
+	"fmt"
 	"github.com/streadway/amqp"
 	"github.com/zeromicro/go-zero/core/logx"
 	"time"
@@ -16,6 +17,7 @@ func (l *RabbitMQLogic) FavoriteUpdatePublisher(videoId, userId int64, isCancel 
 		IsCancel: isCancel,
 	}
 	body, _ := l.svcCtx.Json.Marshal(msg)
+	fmt.Println("+++++++++++++++++++++++++++++++++++++++++++++++++++++", l.svcCtx.RmqCore.Channel, l.svcCtx.RmqCore.Conn)
 	publisher := utils.NewRabbitMQ(utils.VideoFavoriteQueue, utils.VideoFavoriteExchange, "cc", l.svcCtx.RmqCore.Conn, l.svcCtx.RmqCore.Channel)
 	err := publisher.Channel.Publish(publisher.Exchange, publisher.Key, false, false,
 		amqp.Publishing{

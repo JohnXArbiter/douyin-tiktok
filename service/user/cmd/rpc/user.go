@@ -1,18 +1,21 @@
 package main
 
 import (
+	douyinConfig "douyin-tiktok/common/config"
 	"flag"
 	"fmt"
+	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 
 	"douyin-tiktok/service/user/cmd/rpc/internal/config"
 	"douyin-tiktok/service/user/cmd/rpc/internal/server"
 	"douyin-tiktok/service/user/cmd/rpc/internal/svc"
 	"douyin-tiktok/service/user/cmd/rpc/types"
 
-	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
+	_ "github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 	"google.golang.org/grpc"
+
 	"google.golang.org/grpc/reflection"
 )
 
@@ -22,7 +25,9 @@ func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	cc := douyinConfig.LoadConsulConf("service/user/cmd/rpc/etc/user-rpc.yaml")
+	douyinConfig.LoadRpcConf(cc, &c)
+
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
@@ -33,6 +38,8 @@ func main() {
 		}
 	})
 	defer s.Stop()
+
+	_ = consul.RegisterService(c.ListenOn, c.Consul)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

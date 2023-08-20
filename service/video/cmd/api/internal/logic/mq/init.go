@@ -17,12 +17,11 @@ func InitRabbitMQ(svcCtx *svc.ServiceContext) {
 
 func InitVFPublisher(core *utils.RabbitmqCore) {
 	// 获取connection
-	r := utils.NewRabbitMQ(utils.VideoFavoriteQueue, utils.VideoFavoriteExchange, "cc", core.Conn, core.Channel)
+	r := utils.NewRabbitMQ(utils.VideoFavoriteQueue, utils.VideoFavoriteExchange, utils.VideoFavoriteRoutingKey, core.Conn, core.Channel)
 	if r == nil {
-		panic("[RABBITMQ ERROR] InitVFPublisher 初始化 cmdty collect publisher 错误！")
+		panic("[RABBITMQ ERROR] InitVFPublisher 初始化 video favorite publisher 错误！")
 	}
 	// 延迟队列配置
-	delaySeconds := 1000
 	exchangeName := r.Exchange
 	queueName := r.QueueName
 	key := r.Key
@@ -34,8 +33,8 @@ func InitVFPublisher(core *utils.RabbitmqCore) {
 	}
 	args := amqp.Table{
 		"x-dead-letter-exchange":    utils.VideoFavoriteDeadExchange,
-		"x-dead-letter-routing-key": "cc",
-		"x-message-ttl":             int32(delaySeconds * 30),
+		"x-dead-letter-routing-key": utils.VideoFavoriteDeadRoutingKey,
+		"x-message-ttl":             utils.VideoFavoriteTTL,
 	}
 	// 声明带有ttl的队列
 	_, err = r.Channel.QueueDeclare(queueName, true, false, false, false, args)

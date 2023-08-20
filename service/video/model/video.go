@@ -11,7 +11,7 @@ type VideoInfo struct {
 	PublishAt       int64       `json:"-"`
 	VideoObjectName string      `json:"video_object_name"`              // 视频文件object名
 	IsFavorite      bool        `json:"is_favorite,omitempty" xorm:"-"` // true-已点赞，false-未点赞
-	Author          interface{} `json:"author,omitempty" xorm:"-"'`
+	Author          interface{} `json:"author,omitempty" xorm:"-"`
 }
 
 type VideoFavorite struct {
@@ -22,7 +22,7 @@ type VideoFavorite struct {
 type FavoriteVideos []FavoriteVideo
 
 type FavoriteVideo struct {
-	VideoId int64 `json:"video_id" bson:"videoId"`
+	VideoId int64 `json:"video_id" bson:"video_id"`
 	Time    int64 `json:"time" bson:"time"`
 }
 
@@ -48,5 +48,5 @@ type VideoComment struct {
 	CreateAt   int64       `json:"-"`
 	UserId     int64       `json:"user_id"`
 	VideoId    int64       `json:"video_id"`
-	User       interface{} `json:"user,omitempty"`
+	User       interface{} `json:"user,omitempty" xorm:"-"`
 }

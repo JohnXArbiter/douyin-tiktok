@@ -7,6 +7,7 @@ import (
 	"douyin-tiktok/service/video/model"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
 	"douyin-tiktok/service/video/cmd/api/internal/types"
@@ -55,7 +56,7 @@ func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[str
 	if userId != 0 {
 		var vf model.VideoFavorite
 		err := l.svcCtx.VideoFavorite.FindOne(l.ctx, bson.M{"_id": userId}).Decode(&vf)
-		if err != nil {
+		if err != nil && err != mongo.ErrNoDocuments {
 			logx.Errorf("[MONGO ERROR] Feed 获取点赞列表失败 %v\n", err)
 		}
 		for _, video := range vf.FavoriteVideos {

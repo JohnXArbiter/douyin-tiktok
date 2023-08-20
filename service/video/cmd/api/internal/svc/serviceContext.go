@@ -23,7 +23,7 @@ type ServiceContext struct {
 	VideoInfo    *xorm.Session
 	VideoComment *xorm.Session
 
-	Mongo         *mongo.Client
+	Mongo         *mongo.Database
 	VideoFavorite *mongo.Collection
 
 	Redis *redis.Client
@@ -39,7 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	options := idgen.NewIdGeneratorOptions(20)
 	idgen.SetIdGenerator(options)
 
-	mc := utils.InitMongo(c.Mongo)
+	mdb := utils.InitMongo(c.Mongo).Database("douyin_video")
 	rc, channel := utils.InitRabbitMQ(c.RabbitMQ)
 
 	return &ServiceContext{
@@ -47,8 +47,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Xorm:          engine,
 		VideoInfo:     engine.Table("video_info"),
 		VideoComment:  engine.Table("video_comment"),
-		Mongo:         mc,
-		VideoFavorite: mc.Database("douyin_user").Collection("user_relation"),
+		Mongo:         mdb,
+		VideoFavorite: mdb.Collection("video_favorite"),
 		UserRpc:       userservice.NewUserService(zrpc.MustNewClient(c.UserRpc)),
 		FileRpc:       fileservice.NewFileService(zrpc.MustNewClient(c.FileRpc)),
 		Redis:         utils.InitRedis(c.Redis),

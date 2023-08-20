@@ -84,7 +84,7 @@ type (
 
 	VideoIdReq {
 		TokenReq
-		VideoId int64 `form:"videoId"`
+		VideoId int64 `form:"video_id"`
 	}
 
 	PublishActionReq {

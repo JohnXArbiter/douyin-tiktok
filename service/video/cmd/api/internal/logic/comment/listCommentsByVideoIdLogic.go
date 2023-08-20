@@ -31,7 +31,7 @@ func (l *ListCommentsByVideoIdLogic) ListCommentsByVideoId(req *types.VideoIdReq
 	if err := l.svcCtx.VideoComment.Where("`video_id` = ?", req.VideoId).
 		Desc("`create_at`").Find(&videoComments); err != nil {
 		logx.Errorf("[DB ERROR] ListCommentsByVideoId 查询视频评论失败 %v\n", err)
-		return nil, errors.New("获取失败")
+		return nil, errors.New("获取失败😭")
 	}
 
 	// 1.userId 去重

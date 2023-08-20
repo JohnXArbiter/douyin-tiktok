@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
 	"douyin-tiktok/service/video/model"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -38,7 +39,7 @@ func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 		videoId = vfMsg.VideoId
 		key     = utils.VideoFavorite + strconv.FormatInt(userId, 10)
 	)
-
+	fmt.Println("11111111111111111111111111111111111111111111")
 	score, err := l.svcCtx.Redis.ZScore(l.ctx, key, strconv.FormatInt(videoId, 10)).Result()
 	if err != nil {
 		logx.Errorf("[REDIS ERROR] FavoriteCheck 获取 zset member 失败 %v\n", err)

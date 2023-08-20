@@ -3,7 +3,6 @@ package utils
 import (
 	"github.com/streadway/amqp"
 	"github.com/zeromicro/go-zero/core/logx"
-	"time"
 )
 
 var MQUrl string
@@ -69,17 +68,20 @@ func (r *RabbitMQ) PublishTopic(message string) error {
 }
 
 const (
-	VideoFavoriteExchange     = "douyin_video_favorite_exchange"
-	VideoFavoriteDeadExchange = "douyin_video_favorite_exchange_dead"
-	VideoFavoriteQueue        = "douyin_video_favorite"
-	VideoFavoriteDeadQueue    = "douyin_video_favorite_dead"
+	VideoFavoriteExchange       = "douyin_video_favorite_exchange"
+	VideoFavoriteDeadExchange   = "douyin_video_favorite_exchange_dead"
+	VideoFavoriteQueue          = "douyin_video_favorite"
+	VideoFavoriteDeadQueue      = "douyin_video_favorite_dead"
+	VideoFavoriteRoutingKey     = "douyin_vf_routing"
+	VideoFavoriteDeadRoutingKey = "douyin_vf_dead_routing"
+	VideoFavoriteTTL            = 10000
 )
 
 type (
 	VFMessage struct {
-		Time     time.Time `json:"time"`
-		UserId   int64     `json:"userId"`
-		VideoId  int64     `json:"videoId"`
-		IsCancel int8      `json:"isCancel"`
+		Time     int64 `json:"time"`
+		UserId   int64 `json:"userId"`
+		VideoId  int64 `json:"videoId"`
+		IsCancel int8  `json:"isCancel"`
 	}
 )

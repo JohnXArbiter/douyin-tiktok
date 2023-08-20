@@ -38,7 +38,7 @@ func (l *GetInfoListLogic) GetInfoList(in *__.GetInfoListReq) (*__.GetInfoListRe
 
 	// 1.先查出用户信息
 	if err := l.svcCtx.UserInfo.In("`id`", in.TargetUserIds).
-		Cols("`id`, `name`, `avatar`").Find(users); err != nil {
+		Cols("`id`, `name`, `avatar`").Find(&users); err != nil {
 		logx.Errorf("[DB ERROR] GetInfoList 批量查询用户信息失败 %v\n", err)
 		return &__.GetInfoListResp{Code: -1}, err
 	}

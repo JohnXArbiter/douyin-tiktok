@@ -2,6 +2,7 @@ package mq
 
 import (
 	"douyin-tiktok/common/utils"
+	"fmt"
 	"github.com/streadway/amqp"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -11,7 +12,7 @@ func StartVFConsumer(conn *amqp.Connection) {
 	if err != nil {
 		panic("[RABBITMQ ERROR] StartVFConsumer 初始化失败 " + err.Error())
 	}
-	r := utils.NewRabbitMQ(utils.VideoFavoriteDeadQueue, utils.VideoFavoriteDeadExchange, "ac", conn, channel)
+	r := utils.NewRabbitMQ(utils.VideoFavoriteDeadQueue, utils.VideoFavoriteDeadExchange, utils.VideoFavoriteDeadRoutingKey, conn, channel)
 
 	exchangeName := r.Exchange
 	queueName := r.QueueName
@@ -39,18 +40,17 @@ func StartVFConsumer(conn *amqp.Connection) {
 
 	forever := make(chan int, 0)
 	for msg := range msgs {
-		logx.Infof("接受成功咕咕咕咕咕咕过过过过过过过过过过过")
-		ccMessage := new(utils.VFMessage)
-		err = Json.Unmarshal(msg.Body, ccMessage)
-		if err != nil {
+		var vfMsg = new(utils.VFMessage)
+		if err = Json.Unmarshal(msg.Body, vfMsg); err != nil {
 			logx.Infof("[RABBITMQ ERROR] StartVFConsumer 反序列化消息失败 %v\n", err)
 			msg.Nack(false, false)
 			continue
 		}
-		if ccMessage.IsCancel == 0 {
-			RabbitMQ.FavoriteCheck(ccMessage)
+		fmt.Printf("%+v \n dhsdfdjash", vfMsg)
+		if vfMsg.IsCancel == 0 {
+			RabbitMQ.FavoriteCheck(vfMsg)
 		} else {
-			RabbitMQ.FavoriteCancelCheck(ccMessage)
+			RabbitMQ.FavoriteCancelCheck(vfMsg)
 		}
 		msg.Ack(false)
 	}

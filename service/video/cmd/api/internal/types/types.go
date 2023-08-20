@@ -31,7 +31,7 @@ type CommentActionReq struct {
 
 type VideoIdReq struct {
 	TokenReq
-	VideoId int64 `form:"videoId"`
+	VideoId int64 `form:"video_id"`
 }
 
 type PublishActionReq struct {

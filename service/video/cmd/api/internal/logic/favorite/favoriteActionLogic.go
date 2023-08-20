@@ -63,24 +63,24 @@ func (l *FavoriteActionLogic) FavoriteAction(req *types.FavoriteActionReq, logge
 				return errors.New("你本来就没有赞人家嘛😥")
 			}
 			rabbitMQLogic.FavoriteUpdatePublisher(videoId, userId, 1)
-		}
-		if err := l.FavoriteCancelStrategy2(userId, videoId, userIdStr, key); err != nil {
-			return err
+		} else { // 如果 redis 中没有 key，我们不能保证用户有没有点过赞，所以我们最好将其读进 redis，其中用分布式锁锁一下
+			return l.FavoriteCancelStrategy2(userId, videoId, userIdStr, key, rabbitMQLogic)
 		}
 	}
 	return nil
 }
 
-func (l *FavoriteActionLogic) FavoriteCancelStrategy2(userId, videoId int64, userIdStr, key string) error {
+func (l *FavoriteActionLogic) FavoriteCancelStrategy2(userId, videoId int64, userIdStr, key string, rabbitMQLogic *mq.RabbitMQLogic) error {
 	lockKey := utils.VideoFavoriteLock + userIdStr
 	lock := utils.NewDistributedLock(l.ctx, l.svcCtx.Redis, lockKey)
-	isLocked, err := lock.AcquireLock(time.Second * 5)
+	isLocked, err := lock.AcquireLock(time.Second * 2)
 	if err != nil {
 		return errors.New("出错啦")
 	} else if !isLocked {
 		return errors.New("你操作地太快啦，请稍后🥵")
 	}
 	defer lock.ReleaseLock()
+
 	filter := bson.M{"_id": userId}
 	targetVideoId := bson.M{"$pull": bson.M{"favorite_videos": bson.M{"video_id": videoId}}}
 	_, err = l.svcCtx.VideoFavorite.UpdateOne(l.ctx, filter, targetVideoId)
@@ -89,5 +89,9 @@ func (l *FavoriteActionLogic) FavoriteCancelStrategy2(userId, videoId int64, use
 	}
 	favoriteCommonLogic := NewFavoriteCommonLogic(l.ctx, l.svcCtx)
 	_, err = favoriteCommonLogic.LoadIdsAndStore(key, userId)
+	if err != nil {
+		return err
+	}
+	rabbitMQLogic.FavoriteUpdatePublisher(videoId, userId, 1) // 放进 redis 中再发消息，能保证尽量少地操作数据库
 	return nil
 }

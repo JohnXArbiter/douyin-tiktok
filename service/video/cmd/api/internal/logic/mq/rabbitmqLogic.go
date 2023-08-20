@@ -7,6 +7,7 @@ import (
 	"douyin-tiktok/service/video/model"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -39,9 +40,8 @@ func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 		videoId = vfMsg.VideoId
 		key     = utils.VideoFavorite + strconv.FormatInt(userId, 10)
 	)
-	fmt.Println("11111111111111111111111111111111111111111111")
 	score, err := l.svcCtx.Redis.ZScore(l.ctx, key, strconv.FormatInt(videoId, 10)).Result()
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] FavoriteCheck 获取 zset member 失败 %v\n", err)
 		return
 	} else if score == 0 {
@@ -60,6 +60,7 @@ func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 	if err != nil {
 		logx.Errorf("[MONGO ERROR] FavoriteCheck 插入文章收藏记录失败 %v\n", err)
 	}
+	fmt.Println("记录一下 视频点赞", err)
 }
 
 func (l *RabbitMQLogic) FavoriteCancelCheck(vfMsg *utils.VFMessage) {
@@ -70,7 +71,7 @@ func (l *RabbitMQLogic) FavoriteCancelCheck(vfMsg *utils.VFMessage) {
 	)
 
 	score, err := l.svcCtx.Redis.ZScore(l.ctx, key, strconv.FormatInt(videoId, 10)).Result()
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] FavoriteCancelCheck 获取 zset member 失败 %v\n", err)
 		return
 	} else if score != 0 {
@@ -83,4 +84,5 @@ func (l *RabbitMQLogic) FavoriteCancelCheck(vfMsg *utils.VFMessage) {
 	if err != nil {
 		logx.Errorf("[MONGO ERROR] FavoriteCancelCheck 删除文章收藏记录失败 %v\n", err)
 	}
+	fmt.Println("记录一下 视频取消点赞", err)
 }

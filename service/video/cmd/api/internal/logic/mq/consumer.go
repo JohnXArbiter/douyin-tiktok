@@ -2,7 +2,6 @@ package mq
 
 import (
 	"douyin-tiktok/common/utils"
-	"fmt"
 	"github.com/streadway/amqp"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,7 +45,6 @@ func StartVFConsumer(conn *amqp.Connection) {
 			msg.Nack(false, false)
 			continue
 		}
-		fmt.Printf("%+v \n dhsdfdjash", vfMsg)
 		if vfMsg.IsCancel == 0 {
 			RabbitMQ.FavoriteCheck(vfMsg)
 		} else {

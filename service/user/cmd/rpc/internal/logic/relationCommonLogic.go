@@ -7,9 +7,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"strconv"
-	"strings"
 )
 
 type RelationCommonLogic struct {
@@ -57,7 +57,7 @@ func (l *RelationCommonLogic) LoadIdsFromMongo(id, isFollow int64) (*model.UserR
 
 	err := l.svcCtx.UserRelation.FindOne(l.ctx, filter, options.FindOne().SetProjection(projection)).Decode(&userRelation)
 	if err != nil {
-		if strings.Contains(err.Error(), "no documents") {
+		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
 		logx.Errorf("[MONGO ERROR] LoadIdsFromMongo 查询关注文档失败 %v\n", err)

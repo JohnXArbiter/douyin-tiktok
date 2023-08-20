@@ -4,10 +4,10 @@ import (
 	"context"
 	"douyin-tiktok/common/utils"
 	__user "douyin-tiktok/service/user/cmd/rpc/types"
+	"douyin-tiktok/service/video/cmd/api/internal/logic/favorite"
 	"douyin-tiktok/service/video/model"
 	"errors"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"strconv"
 
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
 	"douyin-tiktok/service/video/cmd/api/internal/types"
@@ -31,36 +31,44 @@ func NewFeedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FeedLogic {
 
 func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[string]interface{}, error) {
 	var (
-		vis     []model.VideoInfo
-		userId  = loggedUser.Id
-		uids    []int64
-		rpcChan = make(chan []*__user.User)
-		resp    = utils.GenOkResp()
+		vis  []*model.VideoInfo
+		resp = utils.GenOkResp()
 	)
-
 	if err := l.svcCtx.VideoInfo.Where("publish_at <= ?", req.LatestTime).
 		Desc("publish_at").Limit(30).Find(&vis); err != nil {
 		logx.Errorf("[DB ERROR] Feed 获取视频信息失败 %v\n", err)
 		return nil, errors.New("出错啦😭")
 	}
 
+	if loggedUser == nil {
+		resp["video_list"] = vis
+		return resp, nil
+	}
+
+	var (
+		userId    = loggedUser.Id
+		userIdStr = strconv.FormatInt(userId, 10)
+		uids      []int64
+		rpcChan   = make(chan []*__user.User)
+	)
+
+	favoritedMap := make(map[int64]*model.VideoInfo)
 	for _, vi := range vis {
 		uids = append(uids, vi.UserId)
+		favoritedMap[vi.Id] = vi
 	}
 
 	// 异步取用户信息
 	go l.GetUserInfoListFromRpc(rpcChan, uids, userId)
 
 	// 同时查点赞状态
-	favoritedMap := make(map[int64]bool)
 	if userId != 0 {
-		var vf model.VideoFavorite
-		err := l.svcCtx.VideoFavorite.FindOne(l.ctx, bson.M{"_id": userId}).Decode(&vf)
-		if err != nil && err != mongo.ErrNoDocuments {
-			logx.Errorf("[MONGO ERROR] Feed 获取点赞列表失败 %v\n", err)
-		}
-		for _, video := range vf.FavoriteVideos {
-			favoritedMap[video.VideoId] = true
+		favoriteCommonLogic := favorite.NewFavoriteCommonLogic(l.ctx, l.svcCtx)
+		videoIds, _ := favoriteCommonLogic.LoadIdsAndStore(utils.VideoFavorite+userIdStr, userId)
+		for _, videoId := range videoIds {
+			if vi, ok := favoritedMap[videoId]; ok {
+				vi.IsFavorite = true
+			}
 		}
 	}
 
@@ -72,7 +80,6 @@ func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[str
 			uisMap[user.Id] = user
 		}
 		for _, vi := range vis {
-			vi.IsFavorite = favoritedMap[vi.Id]
 			vi.Author = uisMap[vi.UserId]
 		}
 	}

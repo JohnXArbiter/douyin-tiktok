@@ -8,9 +8,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -41,13 +41,11 @@ func (l *FavoriteCommonLogic) LoadIdsAndStore(key string, userId int64) ([]int64
 		} else if err != nil {
 			return nil, errors.New("出错啦")
 		}
-
-		ids, _ = l.StoreFavoriteVideos2Redis(videoFavorite.FavoriteVideos, key)
-	} else {
-		for _, z := range zs {
-			videoId, _ := strconv.ParseInt(z.Member.(string), 10, 64)
-			ids = append(ids, videoId)
-		}
+		return l.StoreFavoriteVideos2Redis(videoFavorite.FavoriteVideos, key)
+	}
+	for _, z := range zs {
+		videoId, _ := strconv.ParseInt(z.Member.(string), 10, 64)
+		ids = append(ids, videoId)
 	}
 	return ids, nil
 }
@@ -59,7 +57,7 @@ func (l *FavoriteCommonLogic) LoadIdsFromMongo(id int64) (*model.VideoFavorite, 
 	filter := bson.M{"_id": id}
 	err := l.svcCtx.VideoFavorite.FindOne(l.ctx, filter).Decode(&videoFavorite)
 	if err != nil {
-		if strings.Contains(err.Error(), "no documents") {
+		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
 		logx.Errorf("[MONGO ERROR] LoadIdsFromMongo 查询关注文档失败 %v\n", err)
@@ -81,7 +79,7 @@ func (l *FavoriteCommonLogic) StoreFavoriteVideos2Redis(videos model.FavoriteVid
 	}
 	if err := l.svcCtx.Redis.ZAdd(l.ctx, key, zs...).Err(); err != nil {
 		logx.Errorf("[REDIS ERROR] StoreFavoriteVideos2Redis 点赞列表存储redis失败 %v\n", err)
-		return nil, err
+		return ids, err
 	}
 	l.svcCtx.Redis.Expire(l.ctx, key, time.Minute*10)
 	return ids, nil

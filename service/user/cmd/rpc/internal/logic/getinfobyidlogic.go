@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
+	"fmt"
 	"strconv"
 
 	"douyin-tiktok/service/user/cmd/rpc/internal/svc"
@@ -34,6 +35,7 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 		targetUserIdStr = strconv.FormatInt(targetUserId, 10)
 		key             = utils.UserFollow + strconv.FormatInt(userId, 10)
 	)
+	fmt.Println("dasadsfhjkdfhjk")
 
 	var userInfo = &model.UserInfo{Id: in.UserId}
 	has, err := l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").Get(userInfo)
@@ -74,5 +76,6 @@ func (l *GetInfoByIdLogic) GetInfoById(in *__.GetInfoByIdReq) (*__.GetInfoByIdRe
 	}
 
 	resp := &__.GetInfoByIdResp{User: user}
+	fmt.Println("23456789")
 	return resp, nil
 }

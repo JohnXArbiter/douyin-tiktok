@@ -101,3 +101,25 @@ func (l *LoadBalance) SelectByWeightRoundRobin() *HttpServer {
 	}
 	return server
 }
+
+//// SelectBySmoothWeightedRoundRobin 平加权滑轮询
+//func (l *LoadBalance) SelectBySmoothWeightedRoundRobin() *HttpServer {
+//	for _, server := range l.Servers {
+//		server.CWeight += server.Weight
+//	}
+//	sort.Sort(l.Servers)
+//	target := l.Servers[0]
+//	target.CWeight = target.CWeight - l.WeightSum
+//	return target
+//}
+//
+//// SelectBySmoothWeightedRoundRobin2 平加权滑轮询
+//func (l *LoadBalance) SelectBySmoothWeightedRoundRobin2() *HttpServer {
+//	for _, server := range l.Servers {
+//		server.CWeight += server.Weight - server.FailWeight
+//	}
+//	sort.Sort(l.Servers)
+//	target := l.Servers[0]
+//	target.CWeight = target.CWeight - l.WeightSum
+//	return target
+//}

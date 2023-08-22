@@ -73,13 +73,13 @@ func (l *FavoriteActionLogic) FavoriteAction(req *types.FavoriteActionReq, logge
 func (l *FavoriteActionLogic) FavoriteCancelStrategy2(userId, videoId int64, userIdStr, key string, rabbitMQLogic *mq.RabbitMQLogic) error {
 	lockKey := utils.VideoFavoriteLock + userIdStr
 	lock := utils.NewDistributedLock(l.ctx, l.svcCtx.Redis, lockKey)
-	isLocked, err := lock.AcquireLock(time.Second * 2)
+	isLocked, cf, err := lock.AcquireLock(time.Second * 1)
 	if err != nil {
 		return errors.New("出错啦")
 	} else if !isLocked {
 		return errors.New("你操作地太快啦，请稍后🥵")
 	}
-	defer lock.ReleaseLock()
+	defer lock.ReleaseLock(cf)
 
 	filter := bson.M{"_id": userId}
 	targetVideoId := bson.M{"$pull": bson.M{"favorite_videos": bson.M{"video_id": videoId}}}

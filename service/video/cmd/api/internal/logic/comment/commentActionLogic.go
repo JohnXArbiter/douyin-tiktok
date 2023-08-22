@@ -31,12 +31,13 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq, loggedUs
 	var (
 		userId     = loggedUser.Id
 		actionType = req.ActionType
+		videoId    = req.VideoId
 	)
 
 	if actionType == 1 {
 		vc := &model.VideoComment{
 			UserId:     userId,
-			VideoId:    req.VideoId,
+			VideoId:    videoId,
 			Content:    req.CommentText,
 			CreateAt:   time.Now().Unix(),
 			CreateDate: time.Now().Format("01-02"),
@@ -44,6 +45,10 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq, loggedUs
 		if _, err := l.svcCtx.VideoComment.Insert(vc); err != nil {
 			logx.Errorf("[DB ERROR] CommentAction 插入评论失败 %v\n", err)
 			return nil, errors.New("评论失败")
+		}
+		if _, err := l.svcCtx.VideoInfo.SetExpr("`comment_count`", "comment_count + 1").
+			ID(videoId).Update(model.VideoInfo{}); err != nil {
+			logx.Errorf("[DB ERROR] CommentAction 更新评论数失败 %v\n", err)
 		}
 		resp := utils.GenOkResp()
 		resp["comment"] = vc
@@ -53,11 +58,18 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq, loggedUs
 		if id == 0 || actionType != 2 {
 			return nil, errors.New("没有这条评论")
 		}
+
 		vc := &model.VideoComment{Id: id, UserId: userId}
 		if _, err := l.svcCtx.VideoComment.Delete(vc); err != nil {
 			logx.Errorf("[DB ERROR] CommentAction 删除评论失败 %v\n", err)
 			return nil, errors.New("删除失败")
 		}
+		go func() {
+			if _, err := l.svcCtx.VideoInfo.SetExpr("`comment_count`", "comment_count + 1").
+				ID(videoId).Update(model.VideoInfo{}); err != nil {
+				logx.Errorf("[DB ERROR] CommentAction 更新评论数失败 %v\n", err)
+			}
+		}()
 		return utils.GenOkResp(), nil
 	}
 }

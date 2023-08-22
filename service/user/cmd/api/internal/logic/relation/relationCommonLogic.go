@@ -54,17 +54,22 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 		id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
 		ids = append(ids, id)
 	}
-	if err = l.svcCtx.UserInfo.In("`id`", ids).Cols("`id`, `name`, `avatar`").Find(&userInfos); err != nil {
+	if err = l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").
+		In("`id`", ids).Find(&userInfos); err != nil {
 		logx.Errorf("[DB ERROR] ListFollowedUserByUserId 批量查询userInfo失败 %v\n", err)
 		return nil
 	}
 
-	uiMap := make(map[int64]model.UserInfo)
-	for _, info := range userInfos {
-		uiMap[info.Id] = info
+	if len(userInfos) < 1 {
+		return make([]model.UserInfo, 0)
 	}
-	for i, id := range ids {
-		userInfos[i] = uiMap[id]
+
+	uiMap := make(map[int64]model.UserInfo)
+	for i := 0; i < len(userInfos); i++ {
+		uiMap[userInfos[i].Id] = userInfos[i]
+	}
+	for i := 0; i < len(ids); i++ {
+		userInfos[i] = uiMap[ids[i]]
 	}
 
 	return userInfos

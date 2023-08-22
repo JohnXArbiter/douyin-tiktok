@@ -11,6 +11,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
 
 	"strconv"
 )
@@ -36,11 +37,11 @@ var (
 
 func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 	var (
-		userId  = vfMsg.UserId
-		videoId = vfMsg.VideoId
-		key     = utils.VideoFavorite + strconv.FormatInt(userId, 10)
+		userId      = vfMsg.UserId
+		videoId     = vfMsg.VideoId
+		favoriteKey = utils.VideoFavorite + strconv.FormatInt(userId, 10)
 	)
-	score, err := l.svcCtx.Redis.ZScore(l.ctx, key, strconv.FormatInt(videoId, 10)).Result()
+	score, err := l.svcCtx.Redis.ZScore(l.ctx, favoriteKey, strconv.FormatInt(videoId, 10)).Result()
 	if err != nil && err != redis.Nil {
 		logx.Errorf("[REDIS ERROR] FavoriteCheck 获取 zset member 失败 %v\n", err)
 		return
@@ -58,8 +59,9 @@ func (l *RabbitMQLogic) FavoriteCheck(vfMsg *utils.VFMessage) {
 	}}
 	_, err = l.svcCtx.VideoFavorite.UpdateOne(l.ctx, filter, favoriteVideo, option)
 	if err != nil {
-		logx.Errorf("[MONGO ERROR] FavoriteCheck 插入文章收藏记录失败 %v\n", err)
+		logx.Errorf("[MONGO ERROR] FavoriteCheck 视频喜欢失败 %v\n", err)
 	}
+	l.updateFavoriteCnt(videoId)
 	fmt.Println("记录一下 视频点赞", err)
 }
 
@@ -82,7 +84,29 @@ func (l *RabbitMQLogic) FavoriteCancelCheck(vfMsg *utils.VFMessage) {
 	targetVideoId := bson.M{"$pull": bson.M{"favorite_videos": bson.M{"video_id": videoId}}}
 	_, err = l.svcCtx.VideoFavorite.UpdateOne(l.ctx, filter, targetVideoId)
 	if err != nil {
-		logx.Errorf("[MONGO ERROR] FavoriteCancelCheck 删除文章收藏记录失败 %v\n", err)
+		logx.Errorf("[MONGO ERROR] FavoriteCancelCheck 视频取消喜欢失败 %v\n", err)
 	}
+	l.updateFavoriteCnt(videoId)
 	fmt.Println("记录一下 视频取消点赞", err)
+}
+
+func (l *RabbitMQLogic) updateFavoriteCnt(videoId int64) {
+	var key = utils.VideoFavoriteCnt + strconv.FormatInt(videoId, 10)
+	cntRes, err := l.svcCtx.Redis.HGetAll(l.ctx, key).Result()
+	if err != nil {
+		logx.Errorf("[REDIS ERROR] FavoriteCheck 获取 zset member 失败 %v\n", err)
+	}
+
+	last, _ := strconv.ParseInt(cntRes["last"], 10, 64)
+	cnt, _ := strconv.ParseInt(cntRes["cnt"], 10, 64)
+	if time.Now().Add(-10*time.Second).Unix() > last || cnt > 100 {
+		pipeline := l.svcCtx.Redis.Pipeline()
+		pipeline.HDel(l.ctx, key, "cnt")
+		pipeline.Expire(l.ctx, key, 5*time.Minute)
+		_, _ = pipeline.Exec(l.ctx)
+		if _, err = l.svcCtx.VideoInfo.Incr("`favorite_count`", cnt).ID(videoId).
+			Where("favorite_count > ?", cnt).Update(model.VideoInfo{}); err != nil {
+			logx.Errorf("[DB ERROR] FavoriteCheck 更新点赞数失败 %v\n", err)
+		}
+	}
 }

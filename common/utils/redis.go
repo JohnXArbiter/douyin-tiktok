@@ -20,6 +20,7 @@ const (
 	UserFollow        = "user:follow:"
 	UserFan           = "user:fan:"
 	VideoFavorite     = "video:favorite:"
+	VideoFavoriteCnt  = "video:favorite:count:"
 	VideoFavoriteLock = "video:favorite:lock:"
 )
 

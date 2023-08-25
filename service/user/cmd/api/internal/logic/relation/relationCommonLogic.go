@@ -26,10 +26,10 @@ func NewRelationCommonLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 	}
 }
 
-func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, key string) []model.UserInfo {
+func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, key string) []*model.UserInfo {
 	var (
 		ids       []int64
-		userInfos []model.UserInfo
+		userInfos []*model.UserInfo
 	)
 
 	zs, err := l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
@@ -38,7 +38,7 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	} else if err == redis.Nil || len(zs) == 0 { //
 		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
 		if (userRelation == nil && err == nil) || (len(userRelation.Fans) == 0 && len(userRelation.Followers) == 0) {
-			return make([]model.UserInfo, 0)
+			return make([]*model.UserInfo, 0)
 		} else if err != nil {
 			return nil
 		}
@@ -61,10 +61,10 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	}
 
 	if len(userInfos) < 1 {
-		return make([]model.UserInfo, 0)
+		return make([]*model.UserInfo, 0)
 	}
 
-	uiMap := make(map[int64]model.UserInfo)
+	uiMap := make(map[int64]*model.UserInfo)
 	for i := 0; i < len(userInfos); i++ {
 		uiMap[userInfos[i].Id] = userInfos[i]
 	}

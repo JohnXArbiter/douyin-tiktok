@@ -37,5 +37,5 @@ type MessageAction struct {
 	TokenReq
 	ToUserId   int64  `form:"to_user_id"`
 	ActionType int32  `form:"action_type"`
-	Content    string `form:"cOntent"`
+	Content    string `form:"content"`
 }

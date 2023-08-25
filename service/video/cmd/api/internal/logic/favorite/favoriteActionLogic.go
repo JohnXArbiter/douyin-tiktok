@@ -7,7 +7,6 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
 	"douyin-tiktok/service/video/cmd/api/internal/types"
 	"errors"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"strconv"
@@ -97,7 +96,6 @@ func (l *FavoriteActionLogic) FavoriteCancelStrategy2(userId, videoId int64, use
 }
 
 func (l *FavoriteActionLogic) cacheCnt(key string, incr int64) {
-	fmt.Println(incr)
 	res, err := l.svcCtx.Redis.HSetNX(l.ctx, key, "cnt", incr).Result()
 	if err != nil {
 		logx.Errorf("[REDIS ERROR] FavoriteAction redis点赞计数失败 %v\n", err)
@@ -106,7 +104,6 @@ func (l *FavoriteActionLogic) cacheCnt(key string, incr int64) {
 	if !res {
 		l.svcCtx.Redis.HIncrBy(l.ctx, key, "cnt", incr)
 	} else {
-		fmt.Println("sadasdsaasasd")
-		l.svcCtx.Redis.HSet(l.ctx, key, map[string]int64{"last": time.Now().Unix()})
+		l.svcCtx.Redis.HSet(l.ctx, key, map[string]int64{"cnt": incr, "last": time.Now().Unix()})
 	}
 }

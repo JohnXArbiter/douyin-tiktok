@@ -37,6 +37,10 @@ func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq, logge
 		actionType = req.ActionType
 	)
 
+	if userId == toUserId {
+		return nil
+	}
+
 	if actionType == 1 { //
 		if err := l.follow(userId, toUserId); err != nil {
 			logx.Errorf("[MONGO ERROR] RelationAction 关注失败 %v\n", err)

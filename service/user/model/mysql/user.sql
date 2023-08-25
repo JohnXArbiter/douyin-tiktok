@@ -24,6 +24,6 @@ CREATE TABLE IF NOT EXISTS `user_message`
     `user_id`     BIGINT       NOT NULL COMMENT '发送者',
     `to_user_id`  BIGINT       NOT NULL COMMENT '对方',
     `content`     VARCHAR(100) NOT NULL,
-    `create_time` DATETIME     NOT NULL,
+    `create_time` BIGINT       NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

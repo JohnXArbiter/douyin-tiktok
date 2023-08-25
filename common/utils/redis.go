@@ -19,6 +19,7 @@ const (
 	UserLogged        = "user:logged:"
 	UserFollow        = "user:follow:"
 	UserFan           = "user:fan:"
+	UserMessageFlag   = "user:message:"
 	VideoFavorite     = "video:favorite:"
 	VideoFavoriteCnt  = "video:favorite:count:"
 	VideoFavoriteLock = "video:favorite:lock:"

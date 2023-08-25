@@ -52,10 +52,10 @@ service user-api {
 )
 service user-api {
 	@handler chat
-	post /chat (ChatReq) returns ()
+	get /chat (ChatReq) returns ()
 	
 	@handler messageAction
-	get /action (MessageAction) returns ()
+	post /action (MessageAction) returns ()
 }
 
 type (
@@ -95,6 +95,6 @@ type (
 		TokenReq
 		ToUserId   int64  `form:"to_user_id"`
 		ActionType int32  `form:"action_type"`
-		Content    string `form:"cOntent"`
+		Content    string `form:"content"`
 	}
 )

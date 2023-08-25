@@ -29,13 +29,12 @@ func NewMessageActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mes
 
 func (l *MessageActionLogic) MessageAction(req *types.MessageAction, logged *utils.JwtUser) error {
 	var actionType = req.ActionType
-
 	if actionType == 1 {
 		msg := &model.UserMessage{
 			UserId:     logged.Id,
 			ToUserId:   req.ToUserId,
 			Content:    req.Content,
-			CreateTime: time.Now().Local(),
+			CreateTime: time.Now().Unix(),
 		}
 		if _, err := l.svcCtx.UserMessage.Insert(msg); err != nil {
 			logx.Errorf("[DB ERROR] MessageAction 插入聊天记录失败 %v\n", err)

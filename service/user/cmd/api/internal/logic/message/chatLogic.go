@@ -3,14 +3,13 @@ package message
 import (
 	"context"
 	"douyin-tiktok/common/utils"
-	"douyin-tiktok/service/user/model"
-	"errors"
-	"time"
-
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/cmd/api/internal/types"
-
+	"douyin-tiktok/service/user/model"
+	"errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"strconv"
+	"time"
 )
 
 type ChatLogic struct {
@@ -32,13 +31,41 @@ func (l *ChatLogic) Chat(req *types.ChatReq, loggedUser *utils.JwtUser) (map[str
 		userId     = loggedUser.Id
 		toUserId   = req.ToUserId
 		msgs       = make([]model.UserMessage, 0)
-		latestTime = time.Unix(req.PreMsgTime, 0).Local()
+		latestTime = req.PreMsgTime
+		key        = utils.UserMessageFlag + strconv.FormatInt(userId, 10) + ":" + strconv.FormatInt(toUserId, 10)
 	)
 
-	if err := l.svcCtx.UserMessage.Where("`user_id` = ? AND `to_user_id` = ? AND `create_time` > ?",
-		userId, toUserId, latestTime).Desc("`create_time`").Find(&msgs); err != nil {
+	var session = l.svcCtx.UserMessage
+	if latestTime == 0 {
+		session = session.Where("(`user_id` = ? AND `to_user_id` = ?) OR (`to_user_id` = ? AND `user_id` = ?)",
+			userId, toUserId, toUserId, userId).Desc("`create_time`")
+	} else {
+		val, err := l.svcCtx.Redis.Get(l.ctx, key).Result()
+		if err != nil {
+			logx.Errorf("[DB ERROR] Chat redis获取聊天记录时间戳失败 %v\n", err)
+		}
+		timeStamp, _ := strconv.ParseInt(val, 10, 64)
+		session = session.Where("(`user_id` = ? AND `to_user_id` = ?) OR (`to_user_id` = ? AND `user_id` = ?) AND `create_time` < ?",
+			userId, toUserId, toUserId, userId, timeStamp).Asc("`create_time`")
+	}
+
+	if err := session.Limit(20).Find(&msgs); err != nil {
 		logx.Errorf("[DB ERROR] Chat 查询聊天记录失败 %v\n", err)
 		return nil, errors.New("出错啦")
+	}
+
+	if latestTime == 0 {
+		for i := 0; i < len(msgs)/2; i++ {
+			msgs[i], msgs[len(msgs)-1-i] = msgs[len(msgs)-1-i], msgs[i]
+		}
+	}
+
+	if len(msgs) > 0 {
+		err := l.svcCtx.Redis.Set(l.ctx, key, msgs[0].CreateTime, 5*time.Second).Err()
+		if err != nil {
+			logx.Errorf("[DB ERROR] Chat redis记录聊天记录时间戳失败 %v\n", err)
+			return nil, errors.New("出错啦")
+		}
 	}
 
 	resp := utils.GenOkResp()

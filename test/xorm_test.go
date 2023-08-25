@@ -5,6 +5,8 @@ import (
 	userModel "douyin-tiktok/service/user/model"
 	videoModel "douyin-tiktok/service/video/model"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
+	"log"
 	"testing"
 	"time"
 	"xorm.io/xorm"
@@ -70,4 +72,24 @@ func TestAsd(t *testing.T) {
 	fmt.Println(update, err)
 }
 
-//.Table("video_info")
+// .Table("video_info")
+func TestIncr(t *testing.T) {
+	engine := getVideoEngine()
+	if _, err := engine.Incr("`favorite_count`", 2).ID(451112560919813).
+		Where("favorite_count >= ?", 0).Update(videoModel.VideoInfo{}); err != nil {
+		logx.Errorf("[DB ERROR] FavoriteCheck 更新点赞数失败 %v\n", err)
+	}
+}
+
+func TestFindVideoInfo(t *testing.T) {
+	engine := getVideoEngine()
+	ids := []int64{451112560919813, 451112674690309, 451113026004229, 451113077114117}
+	videoInfos := make([]videoModel.VideoInfo, 0)
+	if err := engine.In("`id`", ids).Find(&videoInfos); err != nil {
+		logx.Errorf("[DB ERROR] ListFavoriteByUserId 批量查询videoInfo失败 %v\n", err)
+	}
+	for i := range videoInfos {
+		log.Println(videoInfos[i])
+	}
+	fmt.Println(len(videoInfos))
+}

@@ -10,4 +10,7 @@ type Config struct {
 	Mongo utils.MongoConf
 	Mysql utils.MysqlConf
 	Redis utils.RedisConf
+	Bg    struct {
+		Url string `json:"Url"`
+	} `json:"Bg"`
 }

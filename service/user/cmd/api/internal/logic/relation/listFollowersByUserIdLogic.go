@@ -39,6 +39,10 @@ func (l *ListFollowersByUserIdLogic) ListFollowersByUserId(req *types.UserIdReq)
 		return nil, errors.New("出错啦")
 	}
 
+	for _, userInfo := range userInfos {
+		userInfo.IsFollow = true
+	}
+
 	resp := utils.GenOkResp()
 	resp["user_list"] = userInfos
 	return resp, nil

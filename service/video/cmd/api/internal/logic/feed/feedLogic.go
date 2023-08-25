@@ -85,7 +85,6 @@ func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[str
 			vi.Author = uisMap[vi.UserId]
 		}
 	}
-	fmt.Printf("%+v \n %+v \n %+v \n %+v \n", vis[0], vis[1], vis[2], vis[3])
 
 	resp["video_list"] = vis
 	return resp, nil

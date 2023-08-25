@@ -42,6 +42,7 @@ func (l *RegisterLogic) Register(req *types.LoginReq) (map[string]interface{}, e
 
 	userInfo.Id = idgen.NextId()
 	userInfo.Name = "user" + strconv.FormatInt(int64(rand.Int31()), 10)
+	userInfo.BackgroundImage = l.svcCtx.BgUrl + strconv.Itoa(rand.Intn(6)) + ".jpg"
 	if _, err = l.svcCtx.UserInfo.Insert(userInfo); err != nil {
 		return nil, errors.New("注册失败，请重试")
 	}

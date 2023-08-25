@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 	"strconv"
 
@@ -71,8 +72,12 @@ func (l *GetInfoListLogic) GetInfoList(in *__.GetInfoListReq) (*__.GetInfoListRe
 			Avatar:   &user.Avatar,
 			IsFollow: idsMap[user.Id],
 		}
+		if user.Id == userId {
+			respUser.IsFollow = true
+		}
 		respUsers = append(respUsers, respUser)
 	}
 	resp := &__.GetInfoListResp{Users: respUsers}
+	fmt.Printf("%+v\n", resp)
 	return resp, nil
 }

@@ -20,6 +20,8 @@ type ServiceContext struct {
 	UserRelation *mongo.Collection
 
 	Redis *redis.Client
+
+	BgUrl string
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -38,5 +40,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Mongo:        mc,
 		UserRelation: mc.Database("douyin_user").Collection("user_relation"),
 		Redis:        utils.InitRedis(c.Redis),
+		BgUrl:        c.Bg.Url,
 	}
 }

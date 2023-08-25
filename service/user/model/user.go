@@ -1,9 +1,5 @@
 package model
 
-import (
-	"time"
-)
-
 type UserInfo struct {
 	Id              int64  `json:"id" xorm:"id"`                             // id
 	Username        string `json:"username" xorm:"username"`                 // 用户名（账号）
@@ -49,9 +45,9 @@ type RelatedUser struct {
 }
 
 type UserMessage struct {
-	Id         int64     `json:"id"`
-	UserId     int64     `json:"user_id"`    // 发送者
-	ToUserId   int64     `json:"to_user_id"` // 对方
-	Content    string    `json:"content"`
-	CreateTime time.Time `json:"create_time"`
+	Id         int64  `json:"id"`
+	UserId     int64  `json:"user_id"`    // 发送者
+	ToUserId   int64  `json:"to_user_id"` // 对方
+	Content    string `json:"content"`
+	CreateTime int64  `json:"create_time"`
 }

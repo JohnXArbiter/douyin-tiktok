@@ -105,7 +105,7 @@ func (l *RabbitMQLogic) updateFavoriteCnt(videoId int64) {
 		pipeline.Expire(l.ctx, key, 5*time.Minute)
 		_, _ = pipeline.Exec(l.ctx)
 		if _, err = l.svcCtx.VideoInfo.Incr("`favorite_count`", cnt).ID(videoId).
-			Where("favorite_count > ?", cnt).Update(model.VideoInfo{}); err != nil {
+			Where("favorite_count >= 0").Update(model.VideoInfo{}); err != nil {
 			logx.Errorf("[DB ERROR] FavoriteCheck 更新点赞数失败 %v\n", err)
 		}
 	}

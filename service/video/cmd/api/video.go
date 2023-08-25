@@ -5,6 +5,7 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/logic/mq"
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stat"
 
 	"douyin-tiktok/service/video/cmd/api/internal/config"
 	"douyin-tiktok/service/video/cmd/api/internal/handler"
@@ -30,7 +31,8 @@ func main() {
 	handler.RegisterHandlers(server, ctx)
 
 	mq.InitRabbitMQ(ctx)
-
+	stat.DisableLog()
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
+
 }

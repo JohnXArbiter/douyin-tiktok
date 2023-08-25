@@ -8,6 +8,7 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/types"
 	"douyin-tiktok/service/video/model"
 	"errors"
+	"fmt"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,7 +47,7 @@ func (l *ListPublishedVideosByUserIdLogic) ListPublishedVideosByUserId(req *type
 		logx.Errorf("[DB ERROR] ListPublishedVideosByUserId 查询用户id为：%v的视频列表失败 %v\n", userId, err)
 		return nil, errors.New("数据获取失败！")
 	}
-
+	fmt.Println(videoInfos)
 	user := <-rpcChan
 
 	for _, vi := range videoInfos {

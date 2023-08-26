@@ -8,8 +8,6 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/types"
 	"douyin-tiktok/service/video/model"
 	"errors"
-	"fmt"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -34,7 +32,7 @@ func (l *ListPublishedVideosByUserIdLogic) ListPublishedVideosByUserId(req *type
 		videoInfos []model.VideoInfo
 	)
 
-	// 请求用户 rpc 服务更新作品
+	// 请求用户 rpc 服务获得用户信息
 	userRpcReq := &__user.GetInfoByIdReq{
 		UserId:       userId,
 		TargetUserId: req.UserId,
@@ -47,7 +45,7 @@ func (l *ListPublishedVideosByUserIdLogic) ListPublishedVideosByUserId(req *type
 		logx.Errorf("[DB ERROR] ListPublishedVideosByUserId 查询用户id为：%v的视频列表失败 %v\n", userId, err)
 		return nil, errors.New("数据获取失败！")
 	}
-	fmt.Println(videoInfos)
+
 	user := <-rpcChan
 
 	for _, vi := range videoInfos {
@@ -61,7 +59,7 @@ func (l *ListPublishedVideosByUserIdLogic) ListPublishedVideosByUserId(req *type
 
 func (l *ListPublishedVideosByUserIdLogic) fetchUserInfo(rpcChan chan *__user.User, req *__user.GetInfoByIdReq) {
 	var res *__user.User
-	go func() {
+	defer func() {
 		rpcChan <- res
 	}()
 

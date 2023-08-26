@@ -44,6 +44,23 @@ type RelatedUser struct {
 	Time   int64 `json:"time" bson:"time"`
 }
 
+type UserMessages []UserMessage
+
+func (v UserMessages) Less(i, j int) bool {
+	if v[i].CreateTime < v[j].CreateTime {
+		return true
+	}
+	return false
+}
+
+func (v UserMessages) Len() int {
+	return len(v)
+}
+
+func (v UserMessages) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
+}
+
 type UserMessage struct {
 	Id         int64  `json:"id"`
 	UserId     int64  `json:"user_id"`    // 发送者

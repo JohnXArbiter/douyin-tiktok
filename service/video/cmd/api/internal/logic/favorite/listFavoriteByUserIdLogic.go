@@ -6,7 +6,6 @@ import (
 	__ "douyin-tiktok/service/user/cmd/rpc/types"
 	"douyin-tiktok/service/video/model"
 	"errors"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	"strconv"
 
@@ -68,21 +67,17 @@ func (l *ListFavoriteByUserIdLogic) ListFavoriteByUserId(req *types.UserIdReq) (
 		userIds = append(userIds, videoInfo.UserId)
 		visMap[videoInfo.Id] = &videoInfo
 	}
-	fmt.Println("videoIds", videoIds)
-	fmt.Println("videoInfos ", videoInfos)
-	fmt.Println(userIds)
+
 	// 调rpc去查用户信息
 	getInfoListReq := &__.GetInfoListReq{
 		TargetUserIds: userIds,
 		UserId:        userId,
 	}
-	fmt.Printf("你好你好你好你好你好你好你好你好你好你好你还能有坏女孩 %+v\n", getInfoListReq)
 	getInfoListResp, err := l.svcCtx.UserRpc.GetInfoList(l.ctx, getInfoListReq)
 	if err != nil || getInfoListResp.Code != 0 {
 		logx.Errorf("[RPC ERROR] ListFavoriteByUserId 获取用户信息失败 %v\n", err)
 	}
 
-	fmt.Println("阿斯蒂芬哈SDK家乐福哈搜迪佛IQ为哈佛很那说of后I放说安定坊两节课水儿很给力看看书地方了4", getInfoListResp)
 	// 也是将用户信息放进k为userId，v为userInfo的map中
 	uisMap := make(map[int64]*__.User)
 	for _, userInfo := range getInfoListResp.Users {
@@ -93,14 +88,12 @@ func (l *ListFavoriteByUserIdLogic) ListFavoriteByUserId(req *types.UserIdReq) (
 	 *	遍历videoIds，通过visMap取出对应id的videoInfo，
 	 *	再通过videoInfo中的userId取出userInfo
 	 */
-	fmt.Println(zs)
-	fmt.Printf("%+v %+v\n", visMap, len(visMap))
-	fmt.Println(uisMap)
 	videoList := make([]*model.VideoInfo, 0)
 	for _, id := range videoIds {
-		videoInfo := visMap[id]
-		videoInfo.Author = uisMap[videoInfo.UserId]
-		videoList = append(videoList, videoInfo)
+		if videoInfo, ok := visMap[id]; ok {
+			videoInfo.Author = uisMap[videoInfo.UserId]
+			videoList = append(videoList, videoInfo)
+		}
 	}
 
 	resp["video_list"] = videoList

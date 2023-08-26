@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"log"
+	"sort"
 	"testing"
 	"time"
 	"xorm.io/xorm"
 )
 
 func getUserEngine() *xorm.Engine {
-	return utils.InitXorm("mysql", utils.MysqlConf{Dsn: "root:123456@tcp(43.143.241.157:3306)/douyin_user?charset=utf8mb4&parseTime=True&loc=Local"})
+	return utils.InitXorm("mysql", utils.MysqlConf{Dsn: "root:123456789@tcp(43.143.241.157:3307)/douyin_user?charset=utf8mb4&parseTime=True&loc=Local"})
 }
 
 func TestUserInfo(t *testing.T) {
@@ -92,4 +93,13 @@ func TestFindVideoInfo(t *testing.T) {
 		log.Println(videoInfos[i])
 	}
 	fmt.Println(len(videoInfos))
+}
+
+func TestMsgs(t *testing.T) {
+	engine := getUserEngine()
+	msgs := make(userModel.UserMessages, 0)
+	err := engine.Where("`user_id` = ? AND `to_user_id` = ? AND `create_time` < ?", 1111, 2222, 1692962816).Find(&msgs)
+	fmt.Println(err, msgs)
+	sort.Sort(msgs)
+	fmt.Println(msgs)
 }

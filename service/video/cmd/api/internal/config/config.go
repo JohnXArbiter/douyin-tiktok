@@ -9,9 +9,16 @@ import (
 type Config struct {
 	rest.RestConf
 	UserRpc  zrpc.RpcClientConf
-	FileRpc  zrpc.RpcClientConf
 	Mysql    utils.MysqlConf
 	Redis    utils.RedisConf
 	Mongo    utils.MongoConf
 	RabbitMQ utils.RabbitMQConf
+	Oss      Oss
+}
+
+type Oss struct {
+	EndPoint        string
+	AccessKeyId     string
+	AccessKeySecret string
+	BucketName      string
 }

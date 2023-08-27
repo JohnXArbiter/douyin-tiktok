@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS `video_info`
     `comment_count`     BIGINT       DEFAULT 0  NOT NULL COMMENT '视频的点赞总数',
     `user_id`           BIGINT                  NOT NULL COMMENT '外键',
     `publish_at`        BIGINT                  NOT NULL,
-    `video_object_name` VARCHAR(255)            NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 

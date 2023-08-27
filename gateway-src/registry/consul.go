@@ -1,7 +1,6 @@
 package registry
 
 import (
-	"fmt"
 	"gateway/routes"
 	"gateway/server"
 	"log"
@@ -16,8 +15,8 @@ type ConsulRegistry struct {
 	client              *api.Client
 	localServerInstance ServerInstance
 	FetchInterval       int64
-	routes.Routes
-	routes.Predicates
+	Routes
+	Predicates
 }
 
 func (c *ConsulRegistry) Register(serverInstance ServerInstance, listenOn string) {
@@ -95,20 +94,19 @@ func NewConsulRegistry(conf *Conf) *ConsulRegistry {
 	return &ConsulRegistry{client: client, FetchInterval: conf.Frequency}
 }
 
-func (c *ConsulRegistry) SetPredicates(rs []routes.Route) {
-
-	c.Routes = make(routes.Routes)
+func (c *ConsulRegistry) SetPredicates(rs []routes.Route, strategy int) {
+	c.Routes = make(Routes)
 	for _, route := range rs {
-		lb := &server.LoadBalance{ServerKey: route.Key}
-		c.Routes[route.Key] = lb
-		c.Predicates = make(routes.Predicates)
-		for _, path := range route.Predicates {
+		lb := server.NewLoadBalanceStrategy(route.Id, strategy)
+		c.Predicates = make(Predicates)
+		c.Routes[route.Id] = lb
+		for _, path := range route.Prefix {
 			c.Predicates[path] = lb
 		}
 	}
 }
 
-func (c *ConsulRegistry) GetInstances() {
+func (c *ConsulRegistry) FetchInstances() {
 	var ticker = time.NewTicker(time.Duration(c.FetchInterval) * time.Second)
 	for {
 		select {
@@ -127,20 +125,22 @@ func (c *ConsulRegistry) discovery(serviceName string) error {
 		log.Printf("[ERROR DISCOVERY] 获取 %v 服务失败 %v\n", serviceName, err)
 		return err
 	}
+
 	for _, service := range services {
+		weight := 10
+		if service.Service.Meta != nil {
+			if w := service.Service.Meta["weight"]; w != "" {
+				weight, _ = strconv.Atoi(w)
+			}
+		}
 		addr := service.Service.Address + ":" + strconv.Itoa(service.Service.Port)
-		httpServer := server.NewHttpServer(addr, 10)
+		httpServer := server.NewHttpServer(addr, weight)
 		httpServers = append(httpServers, httpServer)
 	}
 
-	if c.Routes["cmdty.rpc"].Servers != nil {
-		fmt.Println(c.Routes["cmdty.rpc"].Servers[0].Addr, len(c.Routes["cmdty.rpc"].Servers))
-		fmt.Println(c.Predicates["/qwee"].Servers[0].Addr)
-
-	}
 	lb := c.Routes[serviceName]
-	lb.Servers = httpServers
-	lb.ServerNum = len(httpServers)
-
+	lb.Lock().Lock()
+	lb.SetServers(httpServers)
+	lb.Lock().Unlock()
 	return nil
 }

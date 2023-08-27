@@ -9,18 +9,21 @@ import (
 
 var ProxyConfig map[string]string
 
-type GatewayConf struct {
-	Name     string `yaml:"Name"`
-	Host     string `yaml:"Host"`
-	Port     int    `yaml:"Port"`
-	ListenOn string `yaml:"ListenOn"`
-}
+type (
+	GatewayConf struct {
+		Name     string `yaml:"Name"`
+		Host     string `yaml:"Host"`
+		Port     int    `yaml:"Port"`
+		ListenOn string `yaml:"ListenOn"`
+		Strategy int    `yaml:"Strategy"`
+	}
 
-type Conf struct {
-	GatewayConf  GatewayConf    `yaml:"GatewayConf"`
-	RegistryConf registry.Conf  `yaml:"RegistryConf"`
-	Routes       []routes.Route `yaml:"Routes"`
-}
+	Conf struct {
+		GatewayConf  GatewayConf    `yaml:"GatewayConf"`
+		RegistryConf registry.Conf  `yaml:"RegistryConf"`
+		Routes       []routes.Route `yaml:"Routes"`
+	}
+)
 
 func MustLoad(path string, v any) {
 	content, err := os.ReadFile(path)

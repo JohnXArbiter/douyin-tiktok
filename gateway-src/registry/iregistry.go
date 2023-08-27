@@ -2,6 +2,7 @@ package registry
 
 import (
 	"gateway/routes"
+	"gateway/server"
 	"math/rand"
 	"net"
 	"strconv"
@@ -16,6 +17,10 @@ type Conf struct {
 	Frequency int64  `yaml:"Frequency"`
 }
 
+type (
+	Routes     map[string]server.LoadBalance // 对应的负载均衡类
+	Predicates map[string]server.LoadBalance // url pattern prefix 匹配
+)
 type (
 	ServerInstance interface {
 		GetHost() string                //
@@ -72,8 +77,8 @@ func (serviceInstance *DefaultServerInstance) GetMetadata() map[string]string {
 type ServerRegistry interface {
 	Register(ServerInstance, string)
 	Deregister()
-	SetPredicates([]routes.Route)
-	GetInstances()
+	SetPredicates([]routes.Route, int)
+	FetchInstances()
 }
 
 func getLocalIP() (ipv4 string, err error) {

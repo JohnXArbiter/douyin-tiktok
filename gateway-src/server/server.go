@@ -14,6 +14,7 @@ func NewHttpServer(addr string, weight int) *HttpServer {
 	return &HttpServer{
 		Addr:   addr,
 		Weight: weight,
+		Status: StatusUp,
 	}
 }
 

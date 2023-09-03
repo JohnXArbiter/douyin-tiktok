@@ -5,7 +5,6 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/model"
 	"errors"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"strings"
@@ -38,12 +37,13 @@ func (l *LoginLogic) Login(req *types.LoginReq) (map[string]interface{}, error) 
 	)
 
 	userInfo := &model.UserInfo{Username: username}
-	if has, err := l.svcCtx.UserInfo.Get(userInfo); err != nil || !has {
-		fmt.Println(err)
+	has, err := l.svcCtx.UserInfo.Cols("`id`", "`username`", "`password`", "`name`").Get(userInfo)
+	if err != nil || !has {
+		logx.Errorf("[DB ERROR] ")
 		return nil, errors.New("该账户不存在！")
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(userInfo.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(userInfo.Password), []byte(password))
 	if err != nil {
 		return nil, errors.New("帐号或密码错误！")
 	}

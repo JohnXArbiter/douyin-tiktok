@@ -3,7 +3,7 @@ USE douyin_user;
 CREATE TABLE IF NOT EXISTS `user_info`
 (
     `id`               BIGINT                  NOT NULL,
-    `username`         VARCHAR(20)             NOT NULL,
+    `username`         VARCHAR(20)             NOT NULL UNIQUE,
     `password`         VARCHAR(255)            NOT NULL,
     `name`             VARCHAR(20)             NOT NULL COMMENT '用户名称',
     `follow_count`     BIGINT       DEFAULT 0 COMMENT '关注总数',
@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `user_info`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+CREATE INDEX login_idx ON user_info(username, password, name);
 
 CREATE TABLE IF NOT EXISTS `user_message`
 (
@@ -27,3 +28,6 @@ CREATE TABLE IF NOT EXISTS `user_message`
     `create_time` BIGINT       NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+ALTER TABLE user_message
+    ADD INDEX uid_2uid_time (user_id, to_user_id, create_time);

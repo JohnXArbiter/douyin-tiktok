@@ -53,33 +53,35 @@ func InitRedis(rc RedisConf) *redis.Client {
 type DistributedLock struct {
 	ctx context.Context
 	rc  *redis.Client
-	Key string
+	key string
+	cf  context.CancelFunc
 }
 
 func NewDistributedLock(ctx context.Context, rc *redis.Client, Key string) *DistributedLock {
 	return &DistributedLock{
 		ctx: ctx,
 		rc:  rc,
-		Key: Key,
+		key: Key,
 	}
 }
 
 // AcquireLock
 // You need to put CancelFunc right back to ReleaseLock
 // Or WatchDog will cause context leak
-func (l *DistributedLock) AcquireLock(ttl time.Duration) (bool, context.CancelFunc, error) {
-	success, err := l.rc.SetNX(l.ctx, l.Key, "", ttl).Result()
+func (l *DistributedLock) AcquireLock(ttl time.Duration) (bool, error) {
+	success, err := l.rc.SetNX(l.ctx, l.key, "", ttl).Result()
 	if err != nil {
 		logx.Errorf("[REDIS ERROR] AcquireLock 设置锁失败 %v\n", err)
 	}
 	ctx, cancelFunc := context.WithDeadline(l.ctx, time.Now().Add(3*time.Second))
+	l.cf = cancelFunc
 	go l.WatchDog(ctx, ttl)
-	return success, cancelFunc, err
+	return success, err
 }
 
-func (l *DistributedLock) ReleaseLock(cancelFunc context.CancelFunc) error {
-	defer cancelFunc()
-	if _, err := l.rc.Del(l.ctx, l.Key).Result(); err != nil {
+func (l *DistributedLock) ReleaseLock() error {
+	defer l.cf()
+	if _, err := l.rc.Del(l.ctx, l.key).Result(); err != nil {
 		logx.Errorf("[REDIS ERROR] ReleaseLock 释放锁失败 %v\n", err)
 	}
 	return nil
@@ -90,7 +92,7 @@ func (l *DistributedLock) WatchDog(ctx context.Context, ttl time.Duration) {
 	for {
 		select {
 		case <-ticker.C:
-			success, err := l.rc.Expire(l.ctx, l.Key, ttl).Result()
+			success, err := l.rc.Expire(l.ctx, l.key, ttl).Result()
 			if !success || err != nil {
 				logx.Errorf("[REDIS ERROR] WatchDog 续期失败 %v\n", err)
 			}

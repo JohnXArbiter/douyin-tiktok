@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"context"
 	"gateway/routes"
 	"gateway/server"
 	"log"
@@ -97,7 +98,7 @@ func NewConsulRegistry(conf *Conf) *ConsulRegistry {
 func (c *ConsulRegistry) SetPredicates(rs []routes.Route, strategy int) {
 	c.Routes = make(Routes)
 	for _, route := range rs {
-		lb := server.NewLoadBalanceStrategy(route.Id, strategy)
+		lb := server.NewLoadBalanceStrategy(route.Id, strategy, route.RecoverThreshold, route.FailThreshold)
 		c.Predicates = make(Predicates)
 		c.Routes[route.Id] = lb
 		for _, path := range route.Prefix {
@@ -107,23 +108,32 @@ func (c *ConsulRegistry) SetPredicates(rs []routes.Route, strategy int) {
 }
 
 func (c *ConsulRegistry) FetchInstances() {
-	var ticker = time.NewTicker(time.Duration(c.FetchInterval) * time.Second)
+	interval := time.Duration(c.FetchInterval) * time.Second
+	ticker := time.NewTicker(interval)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), interval)
+	defer cancelFunc()
 	for {
 		select {
 		case <-ticker.C:
-			for location := range c.Routes {
-				_ = c.discovery(location)
+			for location, lb := range c.Routes {
+				location1 := location
+				lb1 := lb
+				go func() {
+					c.discovery(location1)
+					lb1.GetChecker().CheckServers(ctx)
+				}()
+
 			}
 		}
 	}
 }
 
-func (c *ConsulRegistry) discovery(serviceName string) error {
+func (c *ConsulRegistry) discovery(serviceName string) {
 	var httpServers server.HttpServers
 	services, _, err := c.client.Health().Service(serviceName, "", false, nil) // c.client.Catalog().Service() 这个是获取所有
 	if err != nil {
 		log.Printf("[ERROR DISCOVERY] 获取 %v 服务失败 %v\n", serviceName, err)
-		return err
+		return
 	}
 
 	for _, service := range services {
@@ -142,5 +152,4 @@ func (c *ConsulRegistry) discovery(serviceName string) error {
 	lb.Lock().Lock()
 	lb.SetServers(httpServers)
 	lb.Lock().Unlock()
-	return nil
 }

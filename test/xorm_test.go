@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"log"
+	"math/rand"
 	"sort"
+	"strconv"
 	"testing"
 	"time"
 	"xorm.io/xorm"
@@ -102,4 +104,23 @@ func TestMsgs(t *testing.T) {
 	fmt.Println(err, msgs)
 	sort.Sort(msgs)
 	fmt.Println(msgs)
+}
+
+func TestMsgIndex(t *testing.T) {
+	engine := getUserEngine()
+	for i := 0; i < 5000; i++ {
+		var msgs []userModel.UserMessage
+		for j := 0; j < 1000; j++ {
+			msg := userModel.UserMessage{
+				UserId:     rand.Int63n(10000),
+				ToUserId:   rand.Int63n(10000),
+				Content:    strconv.FormatInt(rand.Int63(), 10),
+				CreateTime: time.Now().Unix() + rand.Int63n(1000),
+			}
+			msgs = append(msgs, msg)
+		}
+		_, err := engine.Insert(msgs)
+		fmt.Println(err)
+	}
+
 }

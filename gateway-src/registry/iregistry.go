@@ -10,7 +10,7 @@ import (
 )
 
 type Conf struct {
-	Key       string `yaml:"Key"`
+	Key       string `yaml:"key"`
 	Host      string `yaml:"Host" json:",default=0.0.0.0"`
 	Port      int    `yaml:"Port"`
 	Token     string `yaml:"Token"`
@@ -21,6 +21,7 @@ type (
 	Routes     map[string]server.LoadBalance // 对应的负载均衡类
 	Predicates map[string]server.LoadBalance // url pattern prefix 匹配
 )
+
 type (
 	ServerInstance interface {
 		GetHost() string                //

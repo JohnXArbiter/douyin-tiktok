@@ -14,13 +14,15 @@ type LoadBalance interface {
 	SelectServer() *HttpServer
 	SetServers(servers HttpServers)
 	Lock() *sync.RWMutex
+	GetChecker() *HttpChecker
+	CalculateSum()
 }
 
-func NewLoadBalanceStrategy(key string, strategy int) LoadBalance {
+func NewLoadBalanceStrategy(key string, strategy int, recoverThreshold, failThreshold int) LoadBalance {
 
 	switch strategy {
 	case SmoothWeightedRoundRobinStrategy:
-		return NewSmoothWeightedRoundRobin(key)
+		return NewSmoothWeightedRoundRobin(key, recoverThreshold, failThreshold)
 	case RoundRobinStrategy:
 		return nil
 	}
@@ -135,12 +137,18 @@ type SmoothWeightedRoundRobin struct {
 	CurIndex     int           // 轮询下标
 	WeightSum    int           // 权重和
 	lock         *sync.RWMutex // 防止并发问题
+	HttpChecker  *HttpChecker
 }
 
-func NewSmoothWeightedRoundRobin(key string) LoadBalance {
+func NewSmoothWeightedRoundRobin(key string, recoverThreshold, failThreshold int) LoadBalance {
+	var checker *HttpChecker
+	if recoverThreshold > 0 && failThreshold > 0 {
+		checker = NewHttpChecker(nil, recoverThreshold, failThreshold)
+	}
 	return &SmoothWeightedRoundRobin{
 		DiscoveryKey: key,
 		lock:         new(sync.RWMutex),
+		HttpChecker:  checker,
 	}
 }
 
@@ -150,7 +158,7 @@ func (l *SmoothWeightedRoundRobin) SelectServer() *HttpServer {
 	}
 	sort.Sort(l.Servers)
 	target := l.Servers[0]
-	target.CWeight = target.CWeight - l.WeightSum
+	target.CWeight -= l.WeightSum
 	return target
 }
 
@@ -160,8 +168,21 @@ func (l *SmoothWeightedRoundRobin) SetServers(servers HttpServers) {
 	for _, server := range l.Servers {
 		l.WeightSum += server.Weight
 	}
+	l.HttpChecker.Servers = servers
 }
 
 func (l *SmoothWeightedRoundRobin) Lock() *sync.RWMutex {
 	return l.lock
+}
+
+func (l *SmoothWeightedRoundRobin) GetChecker() *HttpChecker {
+	return l.HttpChecker
+}
+
+func (l *SmoothWeightedRoundRobin) CalculateSum() {
+	var sum int
+	for _, server := range l.Servers {
+		sum += server.CWeight
+	}
+	l.WeightSum = sum
 }

@@ -12,9 +12,10 @@ type HttpServer struct {
 
 func NewHttpServer(addr string, weight int) *HttpServer {
 	return &HttpServer{
-		Addr:   addr,
-		Weight: weight,
-		Status: StatusUp,
+		Addr:    addr,
+		Weight:  weight,
+		Status:  StatusUp,
+		CWeight: weight,
 	}
 }
 
@@ -25,7 +26,7 @@ func (s HttpServers) Len() int {
 }
 
 func (s HttpServers) Less(i, j int) bool {
-	return s[i].Weight < s[j].Weight
+	return s[i].CWeight < s[j].CWeight
 }
 
 func (s HttpServers) Swap(i, j int) {

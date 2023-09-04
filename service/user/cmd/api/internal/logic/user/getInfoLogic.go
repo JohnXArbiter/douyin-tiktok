@@ -3,9 +3,11 @@ package user
 import (
 	"context"
 	"douyin-tiktok/common/utils"
+	"douyin-tiktok/service/user/cmd/api/internal/logic/relation"
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/cmd/api/internal/types"
 	"douyin-tiktok/service/user/model"
+	__video "douyin-tiktok/service/video/cmd/rpc/types"
 	"errors"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +35,23 @@ func (l *GetInfoLogic) GetInfo(req *types.UserIdReq, loggedUser *utils.JwtUser) 
 	var (
 		userId       = loggedUser.Id
 		targetUserId = req.UserId
+		rpcChan      = make(chan int64, 2)
 	)
+
+	go func() {
+		var totalFavorited, favoriteCount int64
+		defer func() {
+			rpcChan <- totalFavorited
+			rpcChan <- favoriteCount
+		}()
+
+		resp, err := l.svcCtx.VideoRpc.GetFavoriteAndFavoritedCnt(l.ctx, &__video.GetFavoriteAndFavoritedCntReq{UserId: userId})
+		if err != nil && resp.Code == 0 {
+			totalFavorited, favoriteCount = resp.TotalFavorited, resp.FavoriteCount
+		} else {
+			logx.Errorf("[RPC ERROR] GetInfo 调用rpc获取获赞数和点赞数失败 %v\n", err)
+		}
+	}()
 
 	userInfo := &model.UserInfo{Id: targetUserId}
 	has, err := l.svcCtx.UserInfo.Omit("`username`", "`password`").Get(userInfo)
@@ -44,6 +62,11 @@ func (l *GetInfoLogic) GetInfo(req *types.UserIdReq, loggedUser *utils.JwtUser) 
 	if userId != targetUserId {
 		userInfo.IsFollow = l.isFollowed(userId, targetUserId)
 	}
+
+	userInfo.FollowCount, userInfo.FollowerCount = l.getRelationCnt(userId)
+
+	userInfo.TotalFavorited = <-rpcChan
+	userInfo.FavoriteCount = <-rpcChan
 
 	resp := utils.GenOkResp()
 	resp["user"] = userInfo
@@ -86,4 +109,12 @@ func (l *GetInfoLogic) isFollowed(userId, targetUserId int64) bool {
 	pipeline.Expire(l.ctx, key, 5*time.Minute)
 	go pipeline.Exec(l.ctx)
 	return flag
+}
+
+func (l *GetInfoLogic) getRelationCnt(userId int64) (int64, int64) {
+	userIdStr := strconv.FormatInt(userId, 10)
+	relationCommonLogic := relation.NewRelationCommonLogic(l.ctx, l.svcCtx)
+	followCnt := relationCommonLogic.LoadIdsAndStore(userId, 1, utils.UserFollow+userIdStr)
+	fansCnt := relationCommonLogic.LoadIdsAndStore(userId, 0, utils.UserFan+userIdStr)
+	return int64(len(followCnt)), int64(len(fansCnt))
 }

@@ -13,16 +13,18 @@ import (
 )
 
 type (
-	CodeResp        = __.CodeResp
-	GetInfoByIdReq  = __.GetInfoByIdReq
-	GetInfoByIdResp = __.GetInfoByIdResp
-	GetInfoListReq  = __.GetInfoListReq
-	GetInfoListResp = __.GetInfoListResp
-	User            = __.User
+	CodeResp         = __.CodeResp
+	GetInfoByIdReq   = __.GetInfoByIdReq
+	GetInfoByIdResp  = __.GetInfoByIdResp
+	GetInfoListReq   = __.GetInfoListReq
+	GetInfoListResp  = __.GetInfoListResp
+	UpdateWorkCntReq = __.UpdateWorkCntReq
+	User             = __.User
 
 	UserService interface {
 		GetInfoById(ctx context.Context, in *GetInfoByIdReq, opts ...grpc.CallOption) (*GetInfoByIdResp, error)
 		GetInfoList(ctx context.Context, in *GetInfoListReq, opts ...grpc.CallOption) (*GetInfoListResp, error)
+		UpdateWorkCnt(ctx context.Context, in *UpdateWorkCntReq, opts ...grpc.CallOption) (*CodeResp, error)
 	}
 
 	defaultUserService struct {
@@ -44,4 +46,9 @@ func (m *defaultUserService) GetInfoById(ctx context.Context, in *GetInfoByIdReq
 func (m *defaultUserService) GetInfoList(ctx context.Context, in *GetInfoListReq, opts ...grpc.CallOption) (*GetInfoListResp, error) {
 	client := __.NewUserServiceClient(m.cli.Conn())
 	return client.GetInfoList(ctx, in, opts...)
+}
+
+func (m *defaultUserService) UpdateWorkCnt(ctx context.Context, in *UpdateWorkCntReq, opts ...grpc.CallOption) (*CodeResp, error) {
+	client := __.NewUserServiceClient(m.cli.Conn())
+	return client.UpdateWorkCnt(ctx, in, opts...)
 }

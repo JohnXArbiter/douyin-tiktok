@@ -31,3 +31,8 @@ func (s *UserServiceServer) GetInfoList(ctx context.Context, in *__.GetInfoListR
 	l := logic.NewGetInfoListLogic(ctx, s.svcCtx)
 	return l.GetInfoList(in)
 }
+
+func (s *UserServiceServer) UpdateWorkCnt(ctx context.Context, in *__.UpdateWorkCntReq) (*__.CodeResp, error) {
+	l := logic.NewUpdateWorkCntLogic(ctx, s.svcCtx)
+	return l.UpdateWorkCnt(in)
+}

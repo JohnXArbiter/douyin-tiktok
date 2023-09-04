@@ -4,6 +4,7 @@ import (
 	"douyin-tiktok/common/utils"
 	"douyin-tiktok/service/user/cmd/rpc/userservice"
 	"douyin-tiktok/service/video/cmd/api/internal/config"
+	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/redis/go-redis/v9"
@@ -56,7 +57,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err != nil {
 		panic("[OSS ERROR] NewServiceContext 获取OSS连接错误" + err.Error())
 	}
-
+	fmt.Printf("%+v\n", c.UserRpc)
 	return &ServiceContext{
 		Config:        c,
 		Xorm:          engine,

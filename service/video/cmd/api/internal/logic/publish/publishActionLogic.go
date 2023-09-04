@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"douyin-tiktok/common/utils"
+	__user "douyin-tiktok/service/user/cmd/rpc/types"
 	"douyin-tiktok/service/video/cmd/api/internal/logic/oss"
 	"douyin-tiktok/service/video/model"
 	"errors"
@@ -52,6 +53,8 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 		videoId   = idgen.NextId()
 	)
 
+	updateWorkCntReq := &__user.UpdateWorkCntReq{UserId: userId, IsAdd: 1}
+
 	mi, err := l.svcCtx.Xorm.Transaction(func(session *xorm.Session) (interface{}, error) {
 		var tx = session.Table("video_info")
 
@@ -72,6 +75,12 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 		}
 		if _, err = tx.Insert(videoInfo); err != nil {
 			logx.Errorf("[DB ERROR] PublishAction 插入视频（作品）失败 %v\n", err)
+			return nil, errors.New("视频保存失败！")
+		}
+
+		resp, err := l.svcCtx.UserRpc.UpdateWorkCnt(l.ctx, updateWorkCntReq)
+		if err != nil || resp.Code != 0 {
+			logx.Errorf("[DB ERROR] PublishAction 调用rpc更新作品数量失败 %v\n", err)
 			return nil, errors.New("视频保存失败！")
 		}
 		return m, nil

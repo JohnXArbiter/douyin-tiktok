@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package video;
+
+option go_package = ".";
+
+service VideoService{
+  rpc GetFavoriteAndFavoritedCnt (GetFavoriteAndFavoritedCntReq) returns (GetFavoriteAndFavoritedCntResp);
+}
+
+message GetFavoriteAndFavoritedCntReq {
+  int64 userId = 1;
+}
+
+message GetFavoriteAndFavoritedCntResp {
+  int64 code = 1;
+  int64 totalFavorited = 2;
+  int64 favoriteCount = 3;
+}

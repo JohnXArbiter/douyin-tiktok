@@ -82,6 +82,7 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 	}}
 	_, err := l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, followedUser, updateOpt)
 	if err != nil {
+		logx.Errorf("[MONGO ERROR] RelationAction->follow 更新关注记录 %v\n", err)
 		return err
 	}
 
@@ -92,7 +93,11 @@ func (l *RelationActionLogic) follow(userId, toUserId int64) error {
 		"fans": relatedUser,
 	}}
 	_, err = l.svcCtx.UserRelation.UpdateOne(l.ctx, filter, fan, updateOpt)
-	return err
+	if err != nil {
+		logx.Errorf("[MONGO ERROR] RelationAction->follow 更新关注记录 %v\n", err)
+		return err
+	}
+	return nil
 }
 
 func (l *RelationActionLogic) unFollow(userId, toUserId int64) error {

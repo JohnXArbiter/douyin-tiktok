@@ -65,9 +65,6 @@ func NewDistributedLock(ctx context.Context, rc *redis.Client, Key string) *Dist
 	}
 }
 
-// AcquireLock
-// You need to put CancelFunc right back to ReleaseLock
-// Or WatchDog will cause context leak
 func (l *DistributedLock) AcquireLock(ttl time.Duration) (bool, error) {
 	success, err := l.rc.SetNX(l.ctx, l.key, "", ttl).Result()
 	if err != nil {

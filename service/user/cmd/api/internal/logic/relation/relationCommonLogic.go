@@ -30,31 +30,24 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	var (
 		ids       []int64
 		userInfos []*model.UserInfo
+		zs        []redis.Z
 	)
 
-	zs, err := l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
-	if err != nil && err != redis.Nil {
-		logx.Errorf("[REDIS ERROR] ListFollowedUsersOrFans sth wrong with redis %v\n", err)
-	} else if err == redis.Nil || len(zs) == 0 { //
-		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
-		if (userRelation == nil && err == nil) || (len(userRelation.Fans) == 0 && len(userRelation.Followers) == 0) {
-			return make([]*model.UserInfo, 0)
-		} else if err != nil {
-			return nil
-		}
+	if isFollow == 1 {
+		zs = l.LoadIdsAndStore(userId, 1, key)
+	} else {
+		zs = l.LoadIdsAndStore(userId, 0, key)
+	}
 
-		if isFollow == 1 {
-			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Followers, key)
-		} else {
-			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Fans, key)
-		}
+	if zs == nil || len(zs) == 0 {
+		return make([]*model.UserInfo, 0)
 	}
 
 	for _, z := range zs {
 		id, _ := strconv.ParseInt(z.Member.(string), 10, 64)
 		ids = append(ids, id)
 	}
-	if err = l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").
+	if err := l.svcCtx.UserInfo.Cols("`id`, `name`, `avatar`").
 		In("`id`", ids).Find(&userInfos); err != nil {
 		logx.Errorf("[DB ERROR] ListFollowedUserByUserId 批量查询userInfo失败 %v\n", err)
 		return nil
@@ -73,6 +66,25 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	}
 
 	return userInfos
+}
+
+func (l *RelationCommonLogic) LoadIdsAndStore(userId, isFollow int64, key string) []redis.Z {
+	var zs, err = l.svcCtx.Redis.ZRevRangeWithScores(l.ctx, key, 0, -1).Result()
+	if err != nil && err != redis.Nil {
+		logx.Errorf("[REDIS ERROR] LoadIdsAndStore sth wrong with redis %v\n", err)
+	} else if err == redis.Nil || len(zs) == 0 { //
+		var userRelation, err = l.LoadIdsFromMongo(userId, isFollow)
+		if (userRelation == nil && err == nil) || err != nil {
+			return make([]redis.Z, 0)
+		}
+
+		if isFollow == 1 {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Followers, key)
+		} else {
+			zs, _ = l.StoreRelatedUsers2Redis(userRelation.Fans, key)
+		}
+	}
+	return zs
 }
 
 // LoadIdsFromMongo 从 mongo 中取 follows 或 fans 字段

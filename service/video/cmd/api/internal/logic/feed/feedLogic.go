@@ -7,7 +7,6 @@ import (
 	"douyin-tiktok/service/video/cmd/api/internal/logic/favorite"
 	"douyin-tiktok/service/video/model"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"douyin-tiktok/service/video/cmd/api/internal/svc"
@@ -75,7 +74,6 @@ func (l *FeedLogic) Feed(req *types.FeedReq, loggedUser *utils.JwtUser) (map[str
 
 	uis := <-rpcChan // 阻塞等待
 
-	fmt.Println(uis)
 	uisMap := make(map[int64]*__user.User)
 	if uis != nil {
 		for _, user := range uis {

@@ -37,7 +37,7 @@ func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq, logge
 		actionType = req.ActionType
 	)
 
-	if userId == toUserId {
+	if userId == toUserId || toUserId == 0 {
 		return nil
 	}
 

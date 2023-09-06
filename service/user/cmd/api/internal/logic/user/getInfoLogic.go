@@ -35,27 +35,27 @@ func (l *GetInfoLogic) GetInfo(req *types.UserIdReq, loggedUser *utils.JwtUser) 
 	var (
 		userId       = loggedUser.Id
 		targetUserId = req.UserId
-		rpcChan      = make(chan int64, 2)
+		rpcChan      = make(chan *__video.GetFavoriteAndFavoritedCntResp)
 	)
 
 	go func() {
-		var totalFavorited, favoriteCount int64
+		var res *__video.GetFavoriteAndFavoritedCntResp
 		defer func() {
-			rpcChan <- totalFavorited
-			rpcChan <- favoriteCount
+			rpcChan <- res
 		}()
 
-		resp, err := l.svcCtx.VideoRpc.GetFavoriteAndFavoritedCnt(l.ctx, &__video.GetFavoriteAndFavoritedCntReq{UserId: userId})
-		if err != nil && resp.Code == 0 {
-			totalFavorited, favoriteCount = resp.TotalFavorited, resp.FavoriteCount
-		} else {
+		res, err := l.svcCtx.VideoRpc.GetFavoriteAndFavoritedCnt(l.ctx, &__video.GetFavoriteAndFavoritedCntReq{UserId: userId})
+		if err != nil || res.Code != 0 {
 			logx.Errorf("[RPC ERROR] GetInfo 调用rpc获取获赞数和点赞数失败 %v\n", err)
 		}
 	}()
 
 	userInfo := &model.UserInfo{Id: targetUserId}
 	has, err := l.svcCtx.UserInfo.Omit("`username`", "`password`").Get(userInfo)
-	if err != nil || !has {
+	if !has {
+		if err != nil {
+			logx.Errorf("[DB ERROR] GetInfo 查询用户信息失败 %v\n", err)
+		}
 		return nil, errors.New("找不到该用户")
 	}
 
@@ -65,8 +65,11 @@ func (l *GetInfoLogic) GetInfo(req *types.UserIdReq, loggedUser *utils.JwtUser) 
 
 	userInfo.FollowCount, userInfo.FollowerCount = l.getRelationCnt(userId)
 
-	userInfo.TotalFavorited = <-rpcChan
-	userInfo.FavoriteCount = <-rpcChan
+	rpcResp := <-rpcChan
+	if rpcResp != nil {
+		userInfo.TotalFavorited = rpcResp.TotalFavorited
+		userInfo.FavoriteCount = rpcResp.FavoriteCount
+	}
 
 	resp := utils.GenOkResp()
 	resp["user"] = userInfo

@@ -1,17 +1,17 @@
 package model
 
 type UserInfo struct {
-	Id              int64  `json:"id" xorm:"id"`                             // id
+	Id              int64  `json:"id" xorm:"pk id"`                          // id
 	Username        string `json:"username" xorm:"username"`                 // 用户名（账号）
 	Password        string `json:"password" xorm:"password"`                 // 密码
 	Name            string `json:"name" xorm:"name"`                         // 用户名称
 	Avatar          string `json:"avatar" xorm:"avatar"`                     // 用户头像
 	BackgroundImage string `json:"background_image" xorm:"background_image"` // 用户个人页顶部大图
-	FavoriteCount   int64  `json:"favorite_count" xorm:"favorite_count"`     // 点赞数量
-	FollowCount     int64  `json:"follow_count" xorm:"follow_count"`         // 关注总数
-	FollowerCount   int64  `json:"follower_count" xorm:"follower_count"`     // 粉丝总数
+	FavoriteCount   int64  `json:"favorite_count" xorm:"-"`                  // 点赞数量
+	FollowCount     int64  `json:"follow_count" xorm:"-"`                    // 关注总数
+	FollowerCount   int64  `json:"follower_count" xorm:"-"`                  // 粉丝总数
 	Signature       string `json:"signature" xorm:"signature"`               // 个人简介
-	TotalFavorited  int64  `json:"total_favorited" xorm:"total_favorited"`   // 获赞数量
+	TotalFavorited  int64  `json:"total_favorited" xorm:"-"`                 // 获赞数量
 	WorkCount       int64  `json:"work_count" xorm:"work_count"`             // 作品数量
 	IsFollow        bool   `json:"is_follow" xorm:"-"`
 }

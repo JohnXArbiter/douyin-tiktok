@@ -62,12 +62,16 @@ func (l *ChatLogic) Chat(req *types.ChatReq, loggedUser *utils.JwtUser) (map[str
 	messages := model.UserMessages(msgs)
 	sort.Sort(messages)
 
-	if len(msgs) > 0 {
-		err := l.svcCtx.Redis.Set(l.ctx, key, msgs[0].CreateTime, 5*time.Second).Err()
-		if err != nil {
-			logx.Errorf("[DB ERROR] Chat redis记录聊天记录时间戳失败 %v\n", err)
-			return nil, errors.New("出错啦")
-		}
+	//if len(msgs) > 0 {
+	err := l.svcCtx.Redis.Set(l.ctx, key, msgs[0].CreateTime, 5*time.Second).Err()
+	if err != nil {
+		logx.Errorf("[DB ERROR] Chat redis记录聊天记录时间戳失败 %v\n", err)
+		return nil, errors.New("出错啦")
+	}
+	//}
+
+	if len(msgs) == 0 {
+		msgs = append(msgs, model.UserMessage{CreateTime: 0})
 	}
 
 	resp := utils.GenOkResp()

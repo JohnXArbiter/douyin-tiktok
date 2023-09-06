@@ -31,7 +31,7 @@ func (l *UpdateWorkCntLogic) UpdateWorkCnt(in *__.UpdateWorkCntReq) (*__.CodeRes
 		session.SetExpr("work_count", "work_count - 1").Where("work_count > 0")
 	}
 
-	if _, err := session.Update(&model.UserInfo{Id: in.UserId}); err != nil {
+	if _, err := session.ID(in.UserId).Update(&model.UserInfo{}); err != nil {
 		logx.Errorf("[DB ERROR] UpdateWorkCnt 更新作品输失败 %v\n", err)
 		return &__.CodeResp{Code: -1}, err
 	}

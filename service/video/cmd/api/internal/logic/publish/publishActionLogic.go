@@ -46,7 +46,7 @@ const (
 	CoverObjectName
 )
 
-func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *multipart.FileHeader, loggedUser *utils.JwtUser) error {
+func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, file multipart.File, header *multipart.FileHeader, loggedUser *utils.JwtUser) error {
 	var (
 		userId    = loggedUser.Id
 		userIdStr = strconv.FormatInt(userId, 10)
@@ -58,7 +58,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 	mi, err := l.svcCtx.Xorm.Transaction(func(session *xorm.Session) (interface{}, error) {
 		var tx = session.Table("video_info")
 
-		m, err := l.saveVideo(header, userIdStr)
+		m, err := l.saveVideo(file, header, userIdStr)
 		if err != nil {
 			logx.Errorf("[DB ERROR] PublishAction 视频上传失败 %v\n", err)
 			return nil, errors.New("视频上传失败！")
@@ -93,10 +93,11 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq, header *
 	return err
 }
 
-func (l *PublishActionLogic) saveVideo(file *multipart.FileHeader, userId string) (map[int]string, error) {
+func (l *PublishActionLogic) saveVideo(file multipart.File, header *multipart.FileHeader, userId string) (map[int]string, error) {
+	filename := header.Filename
 	res := make(map[int]string)
 	ossLogic := oss.NewOssLogic(l.ctx, l.svcCtx)
-	videoPlayUrl, videoObjectName, err := ossLogic.Upload(file, userId)
+	videoPlayUrl, videoObjectName, err := ossLogic.UploadRaw(file, filename, userId)
 	if err != nil {
 		return res, err
 	}
@@ -108,7 +109,7 @@ func (l *PublishActionLogic) saveVideo(file *multipart.FileHeader, userId string
 		return res, err
 	}
 
-	videoFileName := file.Filename
+	videoFileName := filename
 	coverUrl, coverObjectName, err := ossLogic.UploadRaw(coverFrame, videoFileName[:strings.LastIndex(videoFileName, ".")]+".png", userId)
 	if err != nil {
 		return res, err

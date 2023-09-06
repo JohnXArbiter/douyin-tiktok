@@ -26,14 +26,14 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		// 拿出文件
-		_, header, err := r.FormFile("data")
+		file, header, err := r.FormFile("data")
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp("文件解析错误！😥"))
 			return
 		}
 
 		l := publish.NewPublishActionLogic(r.Context(), svcCtx)
-		err = l.PublishAction(&req, header, loggedUser)
+		err = l.PublishAction(&req, file, header, loggedUser)
 		if err != nil {
 			httpx.OkJson(w, utils.GenErrorResp(err.Error()))
 		} else {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 	"douyin-tiktok/service/user/model"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -61,6 +62,9 @@ func (l *RelationCommonLogic) ListFollowedUsersOrFans(userId, isFollow int64, ke
 	for i := 0; i < len(userInfos); i++ {
 		uiMap[userInfos[i].Id] = userInfos[i]
 	}
+	fmt.Println(len(ids))
+	fmt.Println(ids)
+	fmt.Println(uiMap)
 	for i := 0; i < len(ids); i++ {
 		userInfos[i] = uiMap[ids[i]]
 	}

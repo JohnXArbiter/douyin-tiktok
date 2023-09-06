@@ -126,7 +126,8 @@ func TestMsgIndex(t *testing.T) {
 }
 
 func TestCount(t *testing.T) {
-	enging := getVideoEngine()
-	get, err := enging.Table("video_info").Where("user_id = ?", 1111).SumInt(&videoModel.VideoInfo{}, "favorite_count")
-	fmt.Println(get, err)
+	engine := getUserEngine()
+	//get, err := enging.Table("video_info").Where("user_id = ?", 1111).SumInt(&videoModel.VideoInfo{}, "favorite_count")
+	update, err := engine.SetExpr("work_count", "`work_count` + 1").ID(1111).Update(&userModel.UserInfo{})
+	fmt.Println(update, err)
 }

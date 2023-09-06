@@ -10,6 +10,7 @@ import (
 	"douyin-tiktok/service/user/cmd/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
+	_ "github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 )
 
 var configFile = flag.String("f", "service/user/cmd/api/etc/user-api.yaml", "the config file")

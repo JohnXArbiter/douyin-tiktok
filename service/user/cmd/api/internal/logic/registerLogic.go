@@ -41,7 +41,8 @@ func (l *RegisterLogic) Register(req *types.LoginReq) (map[string]interface{}, e
 
 	userInfo.Id = idgen.NextId()
 	userInfo.Name = "user" + strconv.FormatInt(int64(rand.Int31()), 10)
-	userInfo.BackgroundImage = l.svcCtx.BgUrl + strconv.Itoa(rand.Intn(6)) + ".jpg"
+	userInfo.Avatar = l.svcCtx.BgUrl + "/avatar" + strconv.Itoa(rand.Intn(3)) + ".jpg"
+	userInfo.BackgroundImage = l.svcCtx.BgUrl + "/bg" + strconv.Itoa(rand.Intn(6)) + ".jpg"
 	if _, err = l.svcCtx.UserInfo.Insert(userInfo); err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			return nil, errors.New("账号已经被抢走啦🫠")
